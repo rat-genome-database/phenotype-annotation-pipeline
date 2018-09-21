@@ -1,0 +1,61 @@
+May 21, 2018 - v.1.6.2
+ - HPO annotator: removed calls to UMLS service, because server with UMLS data (RIVERA) is no longer available)
+ - both annotators: improved logging
+
+Feb 9, 2018 - v.1.6.1
+ - HPO annotator: changed evidence code for annotations to IAGP (previously IEA) -- per RGDD-1455
+
+Apr 19, 2017 - v.1.6.0
+ - HPO annotator: updated to handle data from Orphanet, in addition to OMIM
+
+Mar 13, 2017 - v.1.5.9
+ - added protection: no more than 5% of stale annotations could be deleted
+
+Feb 8, 2017 - v.1.5.8
+ - upgraded build scripts from ANT to GRADLE
+
+Oct 5, 2016 - v.1.5.7
+ - mouse HP annotator: updated url for phenotype file from MGI -- per RGDD-1287
+
+Sep 12, 2016 - v.1.5.6
+ - mouse HP annotator: missing MP terms no longer break the pipeline: all incidents will be reported
+ - both annotators: optimized updates of annotation last modified date
+
+Mar 9, 2015 - v.1.5.5
+ - human HPO annotations 1.2.2: fixed ref_rgd_id for HPO annot pipeline
+
+Jan 23, 2015 - v.1.5.4
+ - fixed bug in rgdcore OntologyXDAO.getTermsBySynonym(), so no longer spurious multi OMIM ids will be reported
+
+Sep 2, 2014 - v.1.5.3
+ - human HPO annotations 1.2.1: moved hard-coded file names into AppConfigure.xml
+
+Aug 20, 2014 - v.1.5.2
+ - human HPO annotations 1.2.0: added generation of file '/tmp/unmapped_omim_to_rdo2.txt'
+   containing all unmapped OMIM ids supplemented by information from UMLS database
+
+Aug 13, 2014 - v.1.5.1
+ - human HPO annotations 1.1.0: improved qc and load statistics; updated jars
+
+Jun 3, 2014 - v.1.5.0
+ - added import of human HPO annotations
+
+Jan 24, 2013 - v.1.4.4
+ - added logging of deleted annotations into deletedAnnots.log
+
+December 28, 2012 - v.1.4.3
+ - updated rgdcore.jar: unique index on FULL_ANNOT table no longer has fields TERm and EXP_RGD_ID    - per RGDD-555
+
+August 23, 2012 - v.1.4.3
+ - updated rgdcore.jar: unique index on FULL_ANNOT table no longer has fields TERm and EXP_RGD_ID
+
+June 19, 2012 - v.1.4.2
+ - added AnnotationImportDAO wrapper to hold all DAO code;
+ - got rid of one of bottlenecks: greatly reduced number of calls to AnnotationImportDAO.getObject()
+   by using local object cache
+ - refactored (simplified) code for testing if annotation is already in database (uses new methods from rgdcore)
+ - annotations will have added 'PMID:' prefix when storing them in database
+
+May 4, 2012 - v. 1.4.1:
+ - added detailed logging, to both 'status' and 'core' logs, about a term accession not matching a term
+   in RGD database -- probably reloading of MP ontology will be sufficient to fix the problem
