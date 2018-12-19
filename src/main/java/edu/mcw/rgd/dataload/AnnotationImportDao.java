@@ -84,21 +84,21 @@ public class AnnotationImportDao {
         return adao.getAnnotationKey(annot);
     }
 
-    public String getAnnotationNotes(int annotKey) throws Exception {
+    public String getAnnotationNotes(Integer annotKey) throws Exception {
 
         String sql = "SELECT notes FROM full_annot a WHERE a.full_annot_key=?";
         List<String> results = StringListQuery.execute(adao, sql, annotKey);
         return results.isEmpty() ? null : results.get(0);
     }
 
-    public int updateAnnotationNotes(int fullAnnotKey, String notes) throws Exception {
+    public int updateAnnotationNotes(Integer fullAnnotKey, String notes) throws Exception {
         String sql = "UPDATE full_annot SET notes=? WHERE full_annot_key=?";
         return adao.update(sql, notes, fullAnnotKey);
     }
 
     private List<Integer> annotKeysForUpdate = new ArrayList<>();
 
-    public void updateLastModified(int annotKey) throws Exception {
+    public void updateLastModified(Integer annotKey) throws Exception {
         annotKeysForUpdate.add(annotKey);
         if( annotKeysForUpdate.size()>=500 ) {
             finishUpdateOfLastModified();
@@ -119,7 +119,7 @@ public class AnnotationImportDao {
         return r;
     }
 
-    Object getObject(int rgdId) throws Exception {
+    Object getObject(Integer rgdId) throws Exception {
 
         Object obj = _objectCache.get(rgdId);
         if( obj==null ) {

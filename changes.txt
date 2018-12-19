@@ -1,3 +1,6 @@
+Dec 19, 2018 - v.1.6.3
+ - updated dependencies and build.gradle
+
 May 21, 2018 - v.1.6.2
  - HPO annotator: removed calls to UMLS service, because server with UMLS data (RIVERA) is no longer available)
  - both annotators: improved logging
