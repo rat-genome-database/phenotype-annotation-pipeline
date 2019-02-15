@@ -1,3 +1,6 @@
+Feb 15, 2019 - v.1.6.5
+ - updated dependencies
+
 Dec 19, 2018 - v.1.6.3
  - updated dependencies and build.gradle
 
