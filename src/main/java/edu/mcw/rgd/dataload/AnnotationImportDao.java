@@ -24,6 +24,10 @@ public class AnnotationImportDao {
     OntologyXDAO odao = new OntologyXDAO();
     RGDManagementDAO mdao = new RGDManagementDAO();
 
+    public String getConnectionInfo() {
+        return adao.getConnectionInfo();
+    }
+
     List<RgdId> getRGDIdsByXdbId(int xdbKey, String accId) throws Exception {
         String key = xdbKey+"|"+accId;
         List<RgdId> list = _cache.get(key);

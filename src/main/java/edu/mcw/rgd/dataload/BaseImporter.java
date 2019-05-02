@@ -3,6 +3,7 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import org.apache.log4j.Logger;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -65,6 +66,9 @@ public abstract class BaseImporter {
     public void run() throws Exception {
         dtStart = new Date();
         log.info(getVersion());
+        log.info("   "+dao.getConnectionInfo());
+        SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        log.info("   started at "+sdt.format(dtStart));
     }
 
 

@@ -8,6 +8,6 @@ if [ "$SERVER" = "REED" ]; then
   EMAIL_LIST=rgd.developers@mcw.edu
 fi
 
-$APPHOME/run.sh -MGIPhenotype 2>&1 > run.log
+$APPHOME/run.sh -MGIPhenotype 2>&1 > $APPHOME/run_mouse.log
 
-mailx -s "[$SERVER] Mouse Phenotype Annotation Import" $EMAIL_LIST < $APPHOME/logs/status_mouse.log
+mailx -s "[$SERVER] Mouse Phenotype Annotation Import" $EMAIL_LIST < $APPHOME/logs/summary_mouse.log

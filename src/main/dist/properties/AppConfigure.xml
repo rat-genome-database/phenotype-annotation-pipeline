@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean id="manager" class="edu.mcw.rgd.dataload.ImportManager">
-        <property name="version" value="PhenotypeAnnotation pipeline ver 1.6.5 as of Feb 15, 2019" />
+        <property name="version" value="PhenotypeAnnotation pipeline ver 1.6.6 as of May 2, 2019" />
 	</bean>
 
     <bean id="mgiPhenotype" class="edu.mcw.rgd.dataload.MGIPhenotypeImporter">

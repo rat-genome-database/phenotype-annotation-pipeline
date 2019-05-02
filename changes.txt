@@ -1,3 +1,6 @@
+May 2, 2019 - v.1.6.6
+ - tuned up summary emails
+
 Feb 15, 2019 - v.1.6.5
  - updated dependencies
 
