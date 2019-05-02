@@ -4,11 +4,11 @@ import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
 import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.Utils;
 
 import java.io.*;
 import java.util.*;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -18,13 +18,11 @@ import java.util.zip.GZIPInputStream;
  */
 public class MGIPhenotypeImporter extends BaseImporter {
 
-    private String aspect="N";
-    private long minFileSize= 22436256;
-
     private Map unprocessed = new HashMap();
     private int newRec=0;
     private int upRec=0;
     private int invalidMP=0;
+    private final String aspect = "N"; // MP ontology has aspect N
 
     /**
      * Main method called by the import manager
@@ -41,18 +39,7 @@ public class MGIPhenotypeImporter extends BaseImporter {
         fd.setUseCompression(true);
 
         String importedFile = fd.downloadNew();
-        //String importedFile = "C:/home/ella/rgd/dev/pipelines/AnnotationImport/trunk/in/MGI_PhenoGenoMP.rpt_20111027";
-
-        File f = new File(importedFile);
-
-        log.info("Processing File of size " + f.length() + "\n");
-
-        if (f.length()  < this.minFileSize) {
-            log.warn("FILE LENGTH TOO SHORT - PLEASE REVIEW - PIPELINE DID NOT RUN");
-            System.exit(1);
-        }
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(f))));
+        BufferedReader br = Utils.openReader(importedFile);
 
         String line;
 
@@ -119,10 +106,10 @@ public class MGIPhenotypeImporter extends BaseImporter {
         br.close();
         dao.finishUpdateOfLastModified();
 
-        log.info("Phenotype Pipeline report for " + new Date().toString());
-        log.info(newRec + " records have been added");
         log.info(upRec + " records have been updated");
-
+        if( newRec!=0 ) {
+            log.info(newRec + " records have been added");
+        }
         deleteStaleAnnotations();
 
         log.info(unprocessed.keySet().size() + " records have been ignored");
@@ -146,7 +133,6 @@ public class MGIPhenotypeImporter extends BaseImporter {
         Annotation annot = new Annotation();
 
         annot.setAnnotatedObjectRgdId(id.getRgdId());
-        annot.setAspect(this.aspect);
         annot.setCreatedBy(getOwner());
         annot.setCreatedDate(new Date());
         annot.setDataSrc(getDataSource());
@@ -169,6 +155,7 @@ public class MGIPhenotypeImporter extends BaseImporter {
         if( term!=null ) {
             annot.setTerm(term.getTerm());
             annot.setTermAcc(accId);
+            annot.setAspect(aspect);
         }
         else {
             // serious problem : term not found in RGD database
@@ -180,14 +167,6 @@ public class MGIPhenotypeImporter extends BaseImporter {
         annot.setXrefSource(pmId!=null ? "PMID:"+pmId : null);
 
         return insertOrUpdateAnnotation(annot);
-    }
-
-    public long getMinFileSize() {
-        return minFileSize;
-    }
-
-    public void setMinFileSize(long minFileSize) {
-        this.minFileSize = minFileSize;
     }
 
     public String getLoggerName() {

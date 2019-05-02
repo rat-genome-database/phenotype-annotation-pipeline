@@ -151,5 +151,4 @@ public class AnnotationImportDao {
         return terms;
     }
     private Map<String,List<Term>> _omimCache = new HashMap<>();
-
 }
