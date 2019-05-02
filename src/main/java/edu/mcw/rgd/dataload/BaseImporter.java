@@ -101,12 +101,12 @@ public abstract class BaseImporter {
 
         // compute maximum allowed number of stale annotations to be deleted
         int staleAnnotDeleteLimit = (getStaleAnnotThreshold() * totalAnnots) / 100;
-        log.info("  stale annotations "+getStaleAnnotThreshold()+"% threshold is "+staleAnnotDeleteLimit);
 
-        int recordsRemoved = dao.deleteAnnotations(getOwner(), dtStart, staleAnnotDeleteLimit);
+        final int recordsRemoved = dao.deleteAnnotations(getOwner(), dtStart, staleAnnotDeleteLimit);
         if( recordsRemoved > staleAnnotDeleteLimit ) {
+            log.info("*** stale annotations "+getStaleAnnotThreshold()+"% threshold is "+staleAnnotDeleteLimit);
             log.warn("*** DELETE ABORTED: count of stale annotations "+recordsRemoved+" exceeds the allowed limit of "+staleAnnotDeleteLimit);
-        } else {
+        } else if( recordsRemoved!=0 ){
             log.info(recordsRemoved + " stale annotations have been removed");
         }
     }
