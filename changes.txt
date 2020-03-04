@@ -1,3 +1,12 @@
+Mar 4, 2020
+ - source file change: different field order
+   NEW FORMAT
+     #Format: HPO-id [tab] HPO label [tab] entrez-gene-id [tab] entrez-gene-symbol [tab] Additional Info from G-D source [tab] G-D source [tab] disease-ID for link
+     HP:0000002	Abnormality of body height	3954	LETM1	-	mim2gene	OMIM:194190
+   OLD FORMAT
+     #Format: diseaseId [tab] gene-symbol [tab] gene-id [tab] HPO-ID [tab] HPO-term-name
+     OMIM:302800	GJB1	2705	HP:0002015	Dysphagia
+
 May 2, 2019 - v.1.6.6
  - tuned up summary emails
  - simplified logic for MGI pehnotype pipeline

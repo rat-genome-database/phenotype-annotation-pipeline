@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -26,7 +25,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
     private String unmappedPhenotypesFile;
     private String unmappedDiseasesFile;
 
-    private Map unprocessed = new HashMap();
+    private Map<String,String> unprocessed = new HashMap<>();
     private int newRec=0;
     private int upRec=0;
     private int upAnnotNotes=0;
@@ -37,7 +36,12 @@ public class HPOPhenotypeImporter extends BaseImporter {
     /**
      * download the file, parse it, create pheno annotations
      * <p>
-     * file format:
+     * new file format: (as of March 2020)
+     * <pre>
+     * #Format: HPO-id [tab] HPO label [tab] entrez-gene-id [tab] entrez-gene-symbol [tab] Additional Info from G-D source [tab] G-D source [tab] disease-ID for link
+     * HP:0000002	Abnormality of body height	3954	LETM1	-	mim2gene	OMIM:194190
+     * </pre>
+     * old file format:
      * <pre>
      * #Format: diseaseId [tab] gene-symbol [tab] gene-id [tab] HPO-ID [tab] HPO-term-name
      * OMIM:302800	GJB1	2705	HP:0002015	Dysphagia
@@ -64,11 +68,10 @@ public class HPOPhenotypeImporter extends BaseImporter {
         log.info("Processing File of size " + f.length() + "\n");
 
         if (f.length()  < getMinFileSize()) {
-            log.warn("FILE LENGTH TOO SHORT - PLEASE REVIEW - PIPELINE DID NOT RUN");
-            System.exit(1);
+            throw new Exception("FILE LENGTH TOO SHORT - PLEASE REVIEW - PIPELINE DID NOT RUN!");
         }
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(f))));
+        BufferedReader br = Utils.openReader(importedFile);
         BufferedWriter bw = new BufferedWriter(new FileWriter(getUnmappedPhenotypesFile()));
 
         // skip the header line
@@ -79,11 +82,11 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         while ((line = br.readLine()) != null) {
             String[] tokens = line.split("\\t", -1);
-            String diseaseId = tokens[0]; // OMIM or Orphanet id
-            String geneSymbol = tokens[1];
+            String diseaseId = tokens[6]; // OMIM or Orphanet id
+            String geneSymbol = tokens[3];
             String geneId = tokens[2];
-            String hpoId = tokens[3];
-            String hpoTermName = tokens[4];
+            String hpoId = tokens[0];
+            String hpoTermName = tokens[1];
 
             List<RgdId> rgdIds = getGenesByGeneId(geneId);
 
