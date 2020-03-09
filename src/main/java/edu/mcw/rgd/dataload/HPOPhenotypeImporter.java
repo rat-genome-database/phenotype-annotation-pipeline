@@ -8,7 +8,6 @@ import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
 import edu.mcw.rgd.process.FileDownloader;
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
@@ -27,10 +26,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
     private Map<String,String> unprocessed = new HashMap<>();
     private int newRec=0;
-    private int upRec=0;
-    private int upAnnotNotes=0;
 
-    NotesManager notesManager = new NotesManager();
     private String evidenceCode;
 
     /**
@@ -105,26 +101,28 @@ public class HPOPhenotypeImporter extends BaseImporter {
                 if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, notes, rdoTerm)!=0 ) {
                     log.debug("inserted " + id + " " + hpoId + " " + notes + " "+(rdoTerm==null?"":rdoTerm.getAccId()));
                     newRec++;
-                } else {
-                    upRec++;
                 }
             }
         }
         br.close();
         bw.close();
 
-        dao.finishUpdateOfLastModified();
-
-        handleUnmappedDiseaseIds(unmappedDiseaseIds);
-
         log.info("Phenotype Pipeline report for " + new Date().toString());
-        log.info(newRec + " records have been added");
-        log.info(upRec + " records have been updated");
+        if( newRec!=0 ) {
+            log.info(newRec + " annotations have been inserted");
+        }
 
-        notesManager.updateDb();
-        log.info(upAnnotNotes + " annotation notes have been updated");
+        int modifiedAnnotCount = updateAnnotations();
+        if( modifiedAnnotCount!=0 ) {
+            log.info(modifiedAnnotCount+" annotations have been updated");
+        }
 
         deleteStaleAnnotations();
+
+        int upRec = getCountOfUpToDateAnnots();
+        log.info(upRec + " annotations are up-to-date");
+
+        handleUnmappedDiseaseIds(unmappedDiseaseIds);
 
         log.info(unprocessed.keySet().size() + " records have been skipped");
 
@@ -134,10 +132,6 @@ public class HPOPhenotypeImporter extends BaseImporter {
     }
 
     void handleUnmappedDiseaseIds(Set<String> unmappedDiseaseIds) throws Exception {
-
-        // original code:
-        // UmlsData.handleUnmappedDiseaseIds(unmappedDiseaseIds, getUnmappedDiseasesFile());
-        // new code:
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(getUnmappedDiseasesFile()));
         bw.write("Disease Id\n");
@@ -203,8 +197,6 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         int result = insertOrUpdateAnnotation(annot);
 
-        notesManager.add(annot.getKey(), notes);
-
         return result;
     }
 
@@ -242,33 +234,5 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
     public String getLoggerName() {
         return "status_human";
-    }
-
-    class NotesManager {
-        Map<Integer, Set<String>> notesMap = new HashMap<>();
-        Logger logAnnotNotes = Logger.getLogger("updated_annot_notes");
-
-        public void add(int annotKey, String notes) {
-            Set<String> setOfNotes = notesMap.get(annotKey);
-            if( setOfNotes==null ) {
-                setOfNotes = new TreeSet<>();
-                notesMap.put(annotKey, setOfNotes);
-            }
-            setOfNotes.add(notes);
-        }
-
-        public void updateDb() throws Exception {
-
-            // update annotation notes if needed
-            for( Map.Entry<Integer, Set<String>> entry: notesMap.entrySet() ) {
-                String notes = Utils.concatenate(entry.getValue(), " ");
-                String notesInRgd = dao.getAnnotationNotes(entry.getKey());
-                if( !Utils.stringsAreEqual(notes, notesInRgd) ) {
-                    upAnnotNotes++;
-                    logAnnotNotes.info("FAK="+entry.getKey()+" OLD=["+Utils.defaultString(notesInRgd)+"] NEW=["+Utils.defaultString(notes)+"]");
-                    dao.updateAnnotationNotes(entry.getKey(), notes);
-                }
-            }
-        }
     }
 }

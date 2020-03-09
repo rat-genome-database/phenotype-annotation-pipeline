@@ -39,6 +39,8 @@ public class DiseaseAnnotationQC {
             return null;
         }
 
+        /* currently this code is suppressed for performance reasons
+
         List<Annotation> annots = getDiseaseAnnotations(geneRgdId, term.getAccId());
         if( annots.isEmpty() )
             noRdoAnnot++;
@@ -47,6 +49,7 @@ public class DiseaseAnnotationQC {
         else {
             multiRdoAnnot++;
         }
+        */
         return term;
     }
 

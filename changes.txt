@@ -1,3 +1,6 @@
+Mar 9, 2020
+ - refactored annotations qc and load code, for better performance and accurate summary counts
+
 Mar 4, 2020
  - source file change: different field order
    NEW FORMAT

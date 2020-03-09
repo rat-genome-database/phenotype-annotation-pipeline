@@ -4,7 +4,6 @@ import edu.mcw.rgd.dao.impl.AnnotationDAO;
 import edu.mcw.rgd.dao.impl.OntologyXDAO;
 import edu.mcw.rgd.dao.impl.RGDManagementDAO;
 import edu.mcw.rgd.dao.impl.XdbIdDAO;
-import edu.mcw.rgd.dao.spring.StringListQuery;
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
@@ -33,6 +32,14 @@ public class AnnotationImportDao {
         List<RgdId> list = _cache.get(key);
         if( list==null ) {
             list = xdao.getRGDIdsByXdbId(xdbKey, accId);
+            // filter out inactive RGD IDs
+            Iterator<RgdId> it = list.iterator();
+            while( it.hasNext() ) {
+                RgdId id = it.next();
+                if( !id.getObjectStatus().equals("ACTIVE") ) {
+                    it.remove();
+                }
+            }
             _cache.put(key, list);
         }
         return list;
@@ -44,6 +51,10 @@ public class AnnotationImportDao {
         return adao.getAnnotationByEvidence(rgdId, accId, ownerId, evidence);
     }
 
+    public List<Annotation> getAnnotations(int refRgdId) throws Exception {
+        return adao.getAnnotationsByReference(refRgdId);
+    }
+
     public List<Annotation> getAnnotations(int rgdId, String termAcc) throws Exception {
         return adao.getAnnotations(rgdId, termAcc);
     }
@@ -52,22 +63,10 @@ public class AnnotationImportDao {
         return adao.getCountOfAnnotationsByReference(refRgdId, src);
     }
 
-    /**
-     * get all annotations for given owner modified before given point of time;
-     * log them into a file 'deletedAnnots.log and then delete them;
-     * HOWEVER, if the number of to-be-deleted stale annotations is more than the specified threshold,
-     * no annotations will be deleted
-     *
-     * @param ownerId owner id (unique id for the pipeline)
-     * @param dt Date object
-     * @return count of deleted annotations
-     * @throws Exception
-     */
-    public int deleteAnnotations(int ownerId, Date dt, int staleAnnotThreshold) throws Exception {
+    public int deleteAnnotations(List<Annotation> staleAnnots, int staleAnnotThreshold) throws Exception {
 
-        // get to-be-deleted stale annots and check if their nr does not exceed the threashold
+        // get to-be-deleted stale annots and check if their nr does not exceed the threshold
         Logger log = Logger.getLogger("deleted_annots");
-        List<Annotation> staleAnnots = adao.getAnnotationsModifiedBeforeTimestamp(ownerId, dt);
         if( staleAnnots.size() > staleAnnotThreshold ) {
             for( Annotation annot: staleAnnots ) {
                 log.debug("TO-BE-DELETED "+annot.dump("|"));
@@ -76,42 +75,14 @@ public class AnnotationImportDao {
         }
 
         // dump all to be deleted annotation to 'deleted_annots' log
+        List<Integer> fullAnnotKeys = new ArrayList<>(staleAnnots.size());
         for( Annotation annot: staleAnnots ) {
             log.info("DELETED "+annot.dump("|"));
+            fullAnnotKeys.add(annot.getKey());
         }
 
         // delete the annotations
-        return adao.deleteAnnotations(ownerId, dt);
-    }
-
-    int getAnnotationKey(Annotation annot) throws Exception {
-        return adao.getAnnotationKey(annot);
-    }
-
-    public String getAnnotationNotes(Integer annotKey) throws Exception {
-
-        String sql = "SELECT notes FROM full_annot a WHERE a.full_annot_key=?";
-        List<String> results = StringListQuery.execute(adao, sql, annotKey);
-        return results.isEmpty() ? null : results.get(0);
-    }
-
-    public int updateAnnotationNotes(Integer fullAnnotKey, String notes) throws Exception {
-        String sql = "UPDATE full_annot SET notes=? WHERE full_annot_key=?";
-        return adao.update(sql, notes, fullAnnotKey);
-    }
-
-    private List<Integer> annotKeysForUpdate = new ArrayList<>();
-
-    public void updateLastModified(Integer annotKey) throws Exception {
-        annotKeysForUpdate.add(annotKey);
-        if( annotKeysForUpdate.size()>=500 ) {
-            finishUpdateOfLastModified();
-        }
-    }
-
-    public void finishUpdateOfLastModified() throws Exception {
-        adao.updateLastModified(annotKeysForUpdate);
-        annotKeysForUpdate.clear();
+        return adao.deleteAnnotations(fullAnnotKeys);
     }
 
     int insertAnnotation(Annotation annot) throws Exception {
@@ -121,6 +92,16 @@ public class AnnotationImportDao {
         int r = adao.insertAnnotation(annot);
         log.info("INSERTED "+annot.dump("|"));
         return r;
+    }
+
+    void updateAnnotation(Annotation newAnnot, Annotation oldAnnot) throws Exception {
+        // dump to be inserted annotation to 'inserted_annots' log
+        Logger log = Logger.getLogger("updated_annots");
+        log.debug("OLD_ANNOT: "+oldAnnot.dump("|"));
+        log.debug("NEW_ANNOT: "+newAnnot.dump("|"));
+
+        // insert the annotation
+        adao.updateAnnotation(newAnnot);
     }
 
     Object getObject(Integer rgdId) throws Exception {

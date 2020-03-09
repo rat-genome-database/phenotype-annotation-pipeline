@@ -20,7 +20,6 @@ public class MGIPhenotypeImporter extends BaseImporter {
 
     private Map unprocessed = new HashMap();
     private int newRec=0;
-    private int upRec=0;
     private int invalidMP=0;
     private final String aspect = "N"; // MP ontology has aspect N
 
@@ -83,8 +82,6 @@ public class MGIPhenotypeImporter extends BaseImporter {
                             if( insertOrUpdateAnnotation(id, "IEA", accId, null) != 0 ) {
                                 log.debug("inserted " + id + " " + accId);
                                 newRec++;
-                            } else {
-                                upRec++;
                             }
                         }
                         continue;
@@ -95,8 +92,6 @@ public class MGIPhenotypeImporter extends BaseImporter {
                         if( insertOrUpdateAnnotation(id, "IAGP", accId, pmId)!=0 ) {
                             log.debug("inserted " + id + " " + accId + " " + pmId);
                             newRec++;
-                        } else {
-                            upRec++;
                         }
                     }
                 }
@@ -104,13 +99,19 @@ public class MGIPhenotypeImporter extends BaseImporter {
 
         }
         br.close();
-        dao.finishUpdateOfLastModified();
 
-        log.info(upRec + " records have been updated");
         if( newRec!=0 ) {
-            log.info(newRec + " records have been added");
+            log.info(newRec + " annotations have been inserted");
         }
+
+        int modifiedAnnotCount = updateAnnotations();
+        if( modifiedAnnotCount!=0 ) {
+            log.info(modifiedAnnotCount+" annotations have been updated");
+        }
+
         deleteStaleAnnotations();
+
+        log.info(getCountOfUpToDateAnnots() + " annotations are up-to-date");
 
         log.info(unprocessed.keySet().size() + " records have been ignored");
         log.debug("The following list of keys was ignored:\n" + unprocessed.keySet().toString());
@@ -125,7 +126,7 @@ public class MGIPhenotypeImporter extends BaseImporter {
      * @param evidence evidence code
      * @param accId accession id
      * @param pmId PubMed id
-     * @return count of rows affected
+     * @return 0 or full annot key if new annotation inserted
      * @throws Exception
      */
     int insertOrUpdateAnnotation(RgdId id, String evidence, String accId, String pmId) throws Exception {

@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author jdepons
@@ -28,6 +29,7 @@ public abstract class BaseImporter {
     private String workDirectory;
     private int staleAnnotThreshold;
     private Date dtStart;
+    private AnnotCache annotCache = new AnnotCache();
 
     abstract public String getLoggerName();
 
@@ -69,6 +71,9 @@ public abstract class BaseImporter {
         log.info("   "+dao.getConnectionInfo());
         SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         log.info("   started at "+sdt.format(dtStart));
+
+        int inRgdAnnotCount = annotCache.loadAnnotations(dao, getRefRgdId());
+        log.info(inRgdAnnotCount+" in-rgd annotations preloaded");
     }
 
 
@@ -79,19 +84,15 @@ public abstract class BaseImporter {
      * @throws Exception
      */
     int insertOrUpdateAnnotation(Annotation annot) throws Exception {
+        return annotCache.insertOrUpdateAnnotation(annot, dao);
+    }
 
-        // check for duplicate annotations
-        int annotKey = dao.getAnnotationKey(annot);
+    public int getCountOfUpToDateAnnots() {
+        return annotCache.getCountOfUpToDateAnnots();
+    }
 
-        if( annotKey!=0 ) {
-            // at this point all fields are equal, so we have a duplicate
-            annot.setKey(annotKey);
-            dao.updateLastModified(annotKey);
-            //log.debug("updated RGDID:" + annot.getAnnotatedObjectRgdId() + " " + annot.getTermAcc() + " " + annot.getXrefSource());
-            return 0;
-        }
-
-        return dao.insertAnnotation(annot);
+    public int updateAnnotations() throws Exception {
+        return annotCache.updateAnnotations(dao);
     }
 
     public void deleteStaleAnnotations() throws Exception {
@@ -102,7 +103,9 @@ public abstract class BaseImporter {
         // compute maximum allowed number of stale annotations to be deleted
         int staleAnnotDeleteLimit = (getStaleAnnotThreshold() * totalAnnots) / 100;
 
-        final int recordsRemoved = dao.deleteAnnotations(getOwner(), dtStart, staleAnnotDeleteLimit);
+        List<Annotation> staleAnnots = annotCache.getStaleAnnotations(dtStart);
+
+        final int recordsRemoved = dao.deleteAnnotations(staleAnnots, staleAnnotDeleteLimit);
         if( recordsRemoved > staleAnnotDeleteLimit ) {
             log.info("*** stale annotations "+getStaleAnnotThreshold()+"% threshold is "+staleAnnotDeleteLimit);
             log.warn("*** DELETE ABORTED: count of stale annotations "+recordsRemoved+" exceeds the allowed limit of "+staleAnnotDeleteLimit);
