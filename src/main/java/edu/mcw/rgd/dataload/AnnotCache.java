@@ -37,7 +37,6 @@ public class AnnotCache {
 
             // do not count newly inserted annotations as stale
             if( a.getLastModifiedDate().getTime() > cutOffTime ) {
-                System.out.println("inserted are not stale");
                 continue;
             }
 

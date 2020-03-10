@@ -4,17 +4,14 @@ import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
 import org.apache.log4j.Logger;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mtutaj
- * Date: 6/3/14
- * Time: 3:23 PM
- * <p>
+ * @author mtutaj
+ * @since 6/3/14
  * check how many prospective disease annotations as generated from HPO-to-Gene-to-Disease file
  * are present in RGD
  */
@@ -22,9 +19,9 @@ public class DiseaseAnnotationQC {
 
     AnnotationImportDao dao;
 
-    Set<String> diseaseToRdoExactMatches = new HashSet<>();
-    Set<String> diseaseToRdoNoMatches = new HashSet<>();
-    Set<String> diseaseToRdoMultiMatches = new HashSet<>();
+    Set<String> diseaseToRdoExactMatches = new TreeSet<>();
+    Set<String> diseaseToRdoNoMatches = new TreeSet<>();
+    Set<String> diseaseToRdoMultiMatches = new TreeSet<>();
 
     int noDiseaseToRdo;
     int noRdoAnnot;
