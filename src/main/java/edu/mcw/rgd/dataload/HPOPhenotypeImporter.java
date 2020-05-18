@@ -34,7 +34,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
      * <p>
      * new file format: (as of May 2020) genes_to_phenotype.txt file
      * <pre>
-     * Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-Name [tab] HPO-Term-ID [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
+     * Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-ID [tab] HPO-Term-Name [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
      * 8192	CLPP	HP:0004322	Short stature		HP:0040283	-	mim2gene	OMIM:614129
      * 2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
      * </pre>
@@ -84,17 +84,21 @@ public class HPOPhenotypeImporter extends BaseImporter {
         Set<String> unmappedDiseaseIds = new HashSet<>();
 
         //             0                   1                         2              3               4               5                    6                             7                    8
-        // Format: entrez-gene-id<tab>entrez-gene-symbol<tab>HPO-Term-Name<tab>HPO-Term-ID<tab>Frequency-Raw<tab>Frequency-HPO<tab>Additional Info from G-D source<tab>G-D source<tab>disease-ID for link
+        // Format: entrez-gene-id<tab>entrez-gene-symbol<tab>HPO-Term-ID<tab>HPO-Term-Name<tab>Frequency-Raw<tab>Frequency-HPO<tab>Additional Info from G-D source<tab>G-D source<tab>disease-ID for link
         //8192	CLPP	HP:0004322	Short stature		HP:0040283	-	mim2gene	OMIM:614129
         //2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
         while ((line = br.readLine()) != null) {
             String[] tokens = line.split("\\t", -1);
 
+            if( tokens.length<9 ) {
+                log.warn("malformed line: "+line);
+                continue;
+            }
             String diseaseId = tokens[8]; // OMIM or Orphanet id
             String geneSymbol = tokens[1];
             String geneId = tokens[0];
-            String hpoId = tokens[3];
-            String hpoTermName = tokens[2];
+            String hpoId = tokens[2];
+            String hpoTermName = tokens[3];
 
             List<RgdId> rgdIds = getGenesByGeneId(geneId);
 

@@ -1,7 +1,7 @@
 May 18, 2020
  - source file change, per RGDD-1776
    NEW FORMAT (genes_to_phenotype.txt)
-     #Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-Name [tab] HPO-Term-ID [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
+     #Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-ID [tab] HPO-Term-Name [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
      2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
 
 Mar 9, 2020
