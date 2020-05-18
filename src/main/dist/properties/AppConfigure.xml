@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean id="manager" class="edu.mcw.rgd.dataload.ImportManager">
-        <property name="version" value="PhenotypeAnnotation pipeline  -- build Mar 9, 2020" />
+        <property name="version" value="PhenotypeAnnotation pipeline  -- build May 18, 2020" />
 	</bean>
 
     <bean id="mgiPhenotype" class="edu.mcw.rgd.dataload.MGIPhenotypeImporter">
@@ -15,8 +15,8 @@
     </bean>
 
     <bean id="hpoPhenotype" class="edu.mcw.rgd.dataload.HPOPhenotypeImporter">
-        <property name="version" value="HPOPhenotypeImporter  -- build Mar 9, 2020" />
-        <property name="fileURL" value="http://compbio.charite.de/jenkins/job/hpo.annotations/lastSuccessfulBuild/artifact/util/annotation/phenotype_to_genes.txt" />
+        <property name="version" value="HPOPhenotypeImporter  -- build May 18, 2020" />
+        <property name="fileURL" value="http://compbio.charite.de/jenkins/job/hpo.annotations/lastSuccessfulBuild/artifact/util/annotation/genes_to_phenotype.txt" />
         <property name="workDirectory" value="data" />
         <property name="owner" value="66" />
         <property name="dataSource" value="HPO" />

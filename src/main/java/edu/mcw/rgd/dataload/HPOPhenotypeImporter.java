@@ -32,7 +32,14 @@ public class HPOPhenotypeImporter extends BaseImporter {
     /**
      * download the file, parse it, create pheno annotations
      * <p>
-     * new file format: (as of March 2020)
+     * new file format: (as of May 2020) genes_to_phenotype.txt file
+     * <pre>
+     * Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-Name [tab] HPO-Term-ID [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
+     * 8192	CLPP	HP:0004322	Short stature		HP:0040283	-	mim2gene	OMIM:614129
+     * 2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
+     * </pre>
+     * <p>
+     * new file format: (as of March 2020) phenotype_to_genes.txt file
      * <pre>
      * #Format: HPO-id [tab] HPO label [tab] entrez-gene-id [tab] entrez-gene-symbol [tab] Additional Info from G-D source [tab] G-D source [tab] disease-ID for link
      * HP:0000002	Abnormality of body height	3954	LETM1	-	mim2gene	OMIM:194190
@@ -76,13 +83,18 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         Set<String> unmappedDiseaseIds = new HashSet<>();
 
+        //             0                   1                         2              3               4               5                    6                             7                    8
+        // Format: entrez-gene-id<tab>entrez-gene-symbol<tab>HPO-Term-Name<tab>HPO-Term-ID<tab>Frequency-Raw<tab>Frequency-HPO<tab>Additional Info from G-D source<tab>G-D source<tab>disease-ID for link
+        //8192	CLPP	HP:0004322	Short stature		HP:0040283	-	mim2gene	OMIM:614129
+        //2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
         while ((line = br.readLine()) != null) {
             String[] tokens = line.split("\\t", -1);
-            String diseaseId = tokens[6]; // OMIM or Orphanet id
-            String geneSymbol = tokens[3];
-            String geneId = tokens[2];
-            String hpoId = tokens[0];
-            String hpoTermName = tokens[1];
+
+            String diseaseId = tokens[8]; // OMIM or Orphanet id
+            String geneSymbol = tokens[1];
+            String geneId = tokens[0];
+            String hpoId = tokens[3];
+            String hpoTermName = tokens[2];
 
             List<RgdId> rgdIds = getGenesByGeneId(geneId);
 

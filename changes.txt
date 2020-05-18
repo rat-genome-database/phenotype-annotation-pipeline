@@ -1,9 +1,15 @@
+May 18, 2020
+ - source file change, per RGDD-1776
+   NEW FORMAT (genes_to_phenotype.txt)
+     #Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-Name [tab] HPO-Term-ID [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
+     2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
+
 Mar 9, 2020
  - refactored annotations qc and load code, for better performance and accurate summary counts
 
 Mar 4, 2020
  - source file change: different field order
-   NEW FORMAT
+   NEW FORMAT (phenotypes_to_gene.txt)
      #Format: HPO-id [tab] HPO label [tab] entrez-gene-id [tab] entrez-gene-symbol [tab] Additional Info from G-D source [tab] G-D source [tab] disease-ID for link
      HP:0000002	Abnormality of body height	3954	LETM1	-	mim2gene	OMIM:194190
    OLD FORMAT
