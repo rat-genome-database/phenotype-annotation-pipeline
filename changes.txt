@@ -1,3 +1,6 @@
+Oct 02, 2020
+ - source file change: MGI separates multiple values by '|', instead of ','
+
 May 18, 2020
  - source file change, per RGDD-1776
    NEW FORMAT (genes_to_phenotype.txt)

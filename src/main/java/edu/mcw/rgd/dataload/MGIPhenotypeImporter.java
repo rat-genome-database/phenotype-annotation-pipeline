@@ -45,8 +45,8 @@ public class MGIPhenotypeImporter extends BaseImporter {
         while ((line = br.readLine()) != null) {
             String[] tokens = line.split("\\t", -1);
             String accId = tokens[3];
-            String[] pmIds = tokens[4].split(",");
-            String[] mgiIds = tokens[5].split(",");
+            String[] pmIds = tokens[4].split("[,|]");
+            String[] mgiIds = tokens[5].split("[,|]");
 
             for (String mgiId : mgiIds) {
 
