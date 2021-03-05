@@ -1,5 +1,5 @@
 Mar 05, 2021, 2020
- - human phenotype ontology: changed the source to http://purl.obolibrary.org/obo/hp.obo
+ - human phenotype ontology: changed the source to http://purl.obolibrary.org/obo/hp/hpoa/genes_to_phenotype.txt
 
 Oct 02, 2020
  - source file change: MGI separates multiple values by '|', instead of ','
