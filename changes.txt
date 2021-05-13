@@ -1,4 +1,7 @@
-Mar 05, 2021, 2020
+May 13, 2021
+ - MP annotator: tuned up summary logging
+
+Mar 05, 2021
  - human phenotype ontology: changed the source to http://purl.obolibrary.org/obo/hp/hpoa/genes_to_phenotype.txt
 
 Oct 02, 2020

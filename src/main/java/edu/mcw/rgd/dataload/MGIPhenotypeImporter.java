@@ -101,19 +101,19 @@ public class MGIPhenotypeImporter extends BaseImporter {
         br.close();
 
         if( newRec!=0 ) {
-            log.info(newRec + " annotations have been inserted");
+            log.info("annotations inserted: "+Utils.formatThousands(newRec));
         }
 
         int modifiedAnnotCount = updateAnnotations();
         if( modifiedAnnotCount!=0 ) {
-            log.info(modifiedAnnotCount+" annotations have been updated");
+            log.info("annotations updated: "+Utils.formatThousands(modifiedAnnotCount));
         }
 
         deleteStaleAnnotations();
 
-        log.info(getCountOfUpToDateAnnots() + " annotations are up-to-date");
+        log.info("annotations up-to-date: "+Utils.formatThousands(getCountOfUpToDateAnnots()));
 
-        log.info(unprocessed.keySet().size() + " records have been ignored");
+        log.info("records ignored: "+Utils.formatThousands(unprocessed.keySet().size()));
         log.debug("The following list of keys was ignored:\n" + unprocessed.keySet().toString());
         if( invalidMP>0 ) {
             log.info(invalidMP + " incoming annotations were skipped because MP term was invalid");
