@@ -1,6 +1,7 @@
 package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.ontology.Annotation;
+import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 
 import java.text.SimpleDateFormat;
@@ -73,7 +74,7 @@ public abstract class BaseImporter {
         log.info("   started at "+sdt.format(dtStart));
 
         int inRgdAnnotCount = annotCache.loadAnnotations(dao, getRefRgdId());
-        log.info(inRgdAnnotCount+" in-rgd annotations preloaded");
+        log.info("annotations in-rgd preloaded: "+ Utils.formatThousands(inRgdAnnotCount));
     }
 
 
@@ -110,7 +111,7 @@ public abstract class BaseImporter {
             log.info("*** stale annotations "+getStaleAnnotThreshold()+"% threshold is "+staleAnnotDeleteLimit);
             log.warn("*** DELETE ABORTED: count of stale annotations "+recordsRemoved+" exceeds the allowed limit of "+staleAnnotDeleteLimit);
         } else if( recordsRemoved!=0 ){
-            log.info(recordsRemoved + " stale annotations have been removed");
+            log.info("stale annotations removed: "+Utils.formatThousands(recordsRemoved));
         }
     }
 
