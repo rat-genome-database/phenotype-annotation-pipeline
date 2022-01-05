@@ -1,20 +1,19 @@
 package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mtutaj
- * Date: Oct 11, 2010
- * Time: 1:56:16 PM
+ * @author mtutaj
+ * @since Oct 11, 2010
  */
 public class ImportManager {
 
-    Logger log = Logger.getLogger("core");
+    Logger log = LogManager.getLogger("core");
     private String version;
 
     /**
@@ -48,7 +47,7 @@ public class ImportManager {
         try {
             importer.run();
         }catch (Exception e) {
-            importer.log.error(e);
+            Utils.printStackTrace(e, importer.log);
             throw e;
         }
 

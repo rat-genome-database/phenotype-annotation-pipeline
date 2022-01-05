@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- <PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/> -->
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] %msg%n"/>
+        </Console>
+
+        <RollingFile name="status_human" append="true" fileName="logs/status_human.log" filePattern="logs/status_human.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="summary_human" append="false" fileName="logs/summary_human.log">
+            <PatternLayout pattern="%m%n"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+
+        <RollingFile name="status_mouse" append="true" fileName="logs/status_mouse.log" filePattern="logs/status_mouse.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="summary_mouse" append="false" fileName="logs/summary_mouse.log">
+            <PatternLayout pattern="%m%n"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+
+        <RollingFile name="inserted_annots" append="true" fileName="logs/inserted_annots.log" filePattern="logs/inserted_annots.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="deleted_annots" append="true" fileName="logs/deleted_annots.log" filePattern="logs/deleted_annots.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="updated_annots" append="true" fileName="logs/updated_annots.log" filePattern="logs/updated_annots.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <!-- daily -->
+        <Logger name="status_human" level="debug" additivity="false">
+            <AppenderRef ref="status_human" level="info"/>
+            <AppenderRef ref="summary_human" level="info"/><!-- human readable -->
+            <!--<AppenderRef ref="detail"/>-->
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="status_mouse" level="debug" additivity="false">
+            <AppenderRef ref="status_mouse" level="info"/>
+            <AppenderRef ref="summary_mouse" level="info"/><!-- human readable -->
+            <!--<AppenderRef ref="detail"/>-->
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <!-- monthly -->
+        <Logger name="inserted_annots" level="debug" additivity="false">
+            <AppenderRef ref="inserted_annots"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="deleted_annots" level="debug" additivity="false">
+            <AppenderRef ref="deleted_annots"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="updated_annots" level="debug" additivity="false">
+            <AppenderRef ref="updated_annots"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+    </Loggers>
+</Configuration>

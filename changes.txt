@@ -1,3 +1,6 @@
+Jan 05, 2022
+ updated log4j to avoid zero day exploit
+
 May 13, 2021
  - MP annotator: tuned up summary logging
 

@@ -15,6 +15,8 @@ targetCompatibility = 1.8
 mainClassName = 'edu.mcw.rgd.dataload.ImportManager'
 String myAppName = 'PhenotypeAnnotation'
 
+project.archivesBaseName = myAppName
+
 repositories {
     mavenCentral()
 }
@@ -22,17 +24,17 @@ repositories {
 dependencies {
     compile 'org.apache.commons:commons-dbcp2:2.7.0'
     compile 'commons-net:commons-net:3.6'
-    compile 'log4j:log4j:1.2.17'
-	compile 'org.apache.httpcomponents:httpclient:4.5.11'
+    compile 'org.apache.logging.log4j:log4j-api:2.17.0'
+    compile 'org.apache.logging.log4j:log4j-core:2.17.0'
+	compile 'org.apache.httpcomponents:httpclient:4.5.12'
     compile 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
-    compile 'org.springframework:spring-beans:5.2.2.RELEASE'
-    compile 'org.springframework:spring-jdbc:5.2.2.RELEASE'
+    compile 'org.springframework:spring-beans:5.2.3.RELEASE'
+    compile 'org.springframework:spring-jdbc:5.2.3.RELEASE'
 
     compile fileTree(dir: 'lib', include: '*.jar')
 }
 
 jar {
-    baseName = myAppName
     manifest {
         attributes(
             'Built-By': System.getProperty('user.name'),

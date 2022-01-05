@@ -7,7 +7,8 @@ import edu.mcw.rgd.dao.impl.XdbIdDAO;
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -66,7 +67,7 @@ public class AnnotationImportDao {
     public int deleteAnnotations(List<Annotation> staleAnnots, int staleAnnotThreshold) throws Exception {
 
         // get to-be-deleted stale annots and check if their nr does not exceed the threshold
-        Logger log = Logger.getLogger("deleted_annots");
+        Logger log = LogManager.getLogger("deleted_annots");
         if( staleAnnots.size() > staleAnnotThreshold ) {
             for( Annotation annot: staleAnnots ) {
                 log.debug("TO-BE-DELETED "+annot.dump("|"));
@@ -87,7 +88,7 @@ public class AnnotationImportDao {
 
     int insertAnnotation(Annotation annot) throws Exception {
         // dump to be inserted annotation to 'inserted_annots' log
-        Logger log = Logger.getLogger("inserted_annots");
+        Logger log = LogManager.getLogger("inserted_annots");
         // insert the annotation
         int r = adao.insertAnnotation(annot);
         log.info("INSERTED "+annot.dump("|"));
@@ -96,7 +97,7 @@ public class AnnotationImportDao {
 
     void updateAnnotation(Annotation newAnnot, Annotation oldAnnot) throws Exception {
         // dump to be inserted annotation to 'inserted_annots' log
-        Logger log = Logger.getLogger("updated_annots");
+        Logger log = LogManager.getLogger("updated_annots");
         log.debug("OLD_ANNOT: "+oldAnnot.dump("|"));
         log.debug("NEW_ANNOT: "+newAnnot.dump("|"));
 

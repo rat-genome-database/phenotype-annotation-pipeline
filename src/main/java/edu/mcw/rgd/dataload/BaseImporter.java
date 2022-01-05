@@ -2,7 +2,8 @@ package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,7 +19,7 @@ public abstract class BaseImporter {
     // status log is so configured in log4j.properties file,
     // that info messages and above go into status.log,
     // while debug messages and above go into core.log
-    Logger log = Logger.getLogger(getLoggerName());
+    Logger log = LogManager.getLogger(getLoggerName());
 
     AnnotationImportDao dao = new AnnotationImportDao();
 

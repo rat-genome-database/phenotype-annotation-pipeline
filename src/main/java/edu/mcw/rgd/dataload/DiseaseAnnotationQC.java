@@ -2,7 +2,7 @@ package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Iterator;
 import java.util.List;
