@@ -1,3 +1,6 @@
+Jan 13, 2023
+  updated build.gradle to be gradle 6.x + compatible
+
 Oct 03, 2022
  fixed logging of dates
 
