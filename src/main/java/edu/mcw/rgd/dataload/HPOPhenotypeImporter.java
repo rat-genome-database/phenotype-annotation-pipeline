@@ -32,6 +32,11 @@ public class HPOPhenotypeImporter extends BaseImporter {
     /**
      * download the file, parse it, create pheno annotations
      * <p>
+     * new file format: (as of Apr 2023) genes_to_phenotype.txt file
+     * <pre>
+     * ncbi_gene_id [tab] gene_symbol [tab] hpo_id [tab] hpo_name
+     * 10      NAT2    HP:0000007      Autosomal recessive inheritance
+     * </pre><p>
      * new file format: (as of May 2020) genes_to_phenotype.txt file
      * <pre>
      * Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-ID [tab] HPO-Term-Name [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
@@ -75,7 +80,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
         }
 
         BufferedReader br = Utils.openReader(importedFile);
-        BufferedWriter bw = new BufferedWriter(new FileWriter(getUnmappedPhenotypesFile()));
+        BufferedWriter bw = Utils.openWriter(getUnmappedPhenotypesFile());
 
         // skip the header line
         String line = br.readLine();
@@ -83,18 +88,16 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         Set<String> unmappedDiseaseIds = new HashSet<>();
 
-        //             0                   1                         2              3               4               5                    6                             7                    8
-        // Format: entrez-gene-id<tab>entrez-gene-symbol<tab>HPO-Term-ID<tab>HPO-Term-Name<tab>Frequency-Raw<tab>Frequency-HPO<tab>Additional Info from G-D source<tab>G-D source<tab>disease-ID for link
-        //8192	CLPP	HP:0004322	Short stature		HP:0040283	-	mim2gene	OMIM:614129
-        //2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
+        // ncbi_gene_id    gene_symbol     hpo_id  hpo_name
+        // 10      NAT2    HP:0000007      Autosomal recessive inheritance
         while ((line = br.readLine()) != null) {
             String[] tokens = line.split("\\t", -1);
 
-            if( tokens.length<9 ) {
+            if( tokens.length<4 ) {
                 log.warn("malformed line: "+line);
                 continue;
             }
-            String diseaseId = tokens[8]; // OMIM or Orphanet id
+            String diseaseId = null; // OMIM/ORDO ID discontinued as of Apr 2023
             String geneSymbol = tokens[1];
             String geneId = tokens[0];
             String hpoId = tokens[2];
@@ -110,8 +113,10 @@ public class HPOPhenotypeImporter extends BaseImporter {
                 String notes = diseaseId;
                 Term rdoTerm = diseaseQC.qc(id.getRgdId(), diseaseId);
                 if( rdoTerm==null ) {
-                    bw.write(line+"\n");
-                    unmappedDiseaseIds.add(diseaseId);
+                    if( diseaseId!=null ) {
+                        bw.write(line + "\n");
+                        unmappedDiseaseIds.add(diseaseId);
+                    }
                 }
 
                 if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, notes, rdoTerm)!=0 ) {
@@ -160,13 +165,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
     List<RgdId> getGenesByGeneId(String geneId) throws Exception {
         List<RgdId> rgdIds = dao.getRGDIdsByXdbId(XdbId.XDB_KEY_NCBI_GENE, geneId);
-        Iterator<RgdId> it = rgdIds.iterator();
-        while( it.hasNext() ) {
-            RgdId id = it.next();
-            if( id.getObjectKey()!=RgdId.OBJECT_KEY_GENES ) {
-                it.remove();
-            }
-        }
+        rgdIds.removeIf(id -> id.getObjectKey() != RgdId.OBJECT_KEY_GENES);
         return rgdIds;
     }
 

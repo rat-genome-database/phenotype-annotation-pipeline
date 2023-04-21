@@ -1,3 +1,8 @@
+Apr 21, 2023
+  human phenotype ontology: NEW FORMAT (genes_to_phenotype.txt) -- they dropped last five columns from the source file
+     * ncbi_gene_id [tab] gene_symbol [tab] hpo_id [tab] hpo_name
+     * 10      NAT2    HP:0000007      Autosomal recessive inheritance
+
 Jan 13, 2023
   updated build.gradle to be gradle 6.x + compatible
 

@@ -30,6 +30,10 @@ public class DiseaseAnnotationQC {
 
     public Term qc(int geneRgdId, String diseaseId) throws Exception {
 
+        if( diseaseId==null ) {
+            return null;
+        }
+
         Term term = getRdoTerm(diseaseId);
         if( term==null ) {
             noDiseaseToRdo++;

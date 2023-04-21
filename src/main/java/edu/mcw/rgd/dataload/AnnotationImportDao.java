@@ -34,13 +34,7 @@ public class AnnotationImportDao {
         if( list==null ) {
             list = xdao.getRGDIdsByXdbId(xdbKey, accId);
             // filter out inactive RGD IDs
-            Iterator<RgdId> it = list.iterator();
-            while( it.hasNext() ) {
-                RgdId id = it.next();
-                if( !id.getObjectStatus().equals("ACTIVE") ) {
-                    it.remove();
-                }
-            }
+            list.removeIf(id -> !id.getObjectStatus().equals("ACTIVE"));
             _cache.put(key, list);
         }
         return list;
@@ -91,7 +85,7 @@ public class AnnotationImportDao {
         Logger log = LogManager.getLogger("inserted_annots");
         // insert the annotation
         int r = adao.insertAnnotation(annot);
-        log.info("INSERTED "+annot.dump("|"));
+        log.debug("INSERTED "+annot.dump("|"));
         return r;
     }
 

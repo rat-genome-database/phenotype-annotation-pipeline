@@ -15,7 +15,7 @@
     </bean>
 
     <bean id="hpoPhenotype" class="edu.mcw.rgd.dataload.HPOPhenotypeImporter">
-        <property name="version" value="HPOPhenotypeImporter  -- version 2022-01-05" />
+        <property name="version" value="HPOPhenotypeImporter  -- build Apr 21, 2023" />
         <property name="fileURL" value="http://purl.obolibrary.org/obo/hp/hpoa/genes_to_phenotype.txt" />
         <property name="workDirectory" value="data" />
         <property name="owner" value="66" />
