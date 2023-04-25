@@ -5,7 +5,6 @@ import edu.mcw.rgd.datamodel.ObjectWithSymbol;
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
-import edu.mcw.rgd.datamodel.ontologyx.Term;
 import edu.mcw.rgd.process.FileDownloader;
 import edu.mcw.rgd.process.Utils;
 
@@ -21,8 +20,6 @@ import java.util.*;
 public class HPOPhenotypeImporter extends BaseImporter {
 
     private long minFileSize;
-    private String unmappedPhenotypesFile;
-    private String unmappedDiseasesFile;
 
     private Map<String,String> unprocessed = new HashMap<>();
     private int newRec=0;
@@ -60,9 +57,6 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         super.run();
 
-        DiseaseAnnotationQC diseaseQC = new DiseaseAnnotationQC();
-        diseaseQC.setDao(dao);
-
         FileDownloader fd = new FileDownloader();
         fd.setExternalFile(this.getFileURL());
         fd.setLocalFile(this.getWorkDirectory() + "/" + "HPOPheno.txt");
@@ -80,13 +74,9 @@ public class HPOPhenotypeImporter extends BaseImporter {
         }
 
         BufferedReader br = Utils.openReader(importedFile);
-        BufferedWriter bw = Utils.openWriter(getUnmappedPhenotypesFile());
 
         // skip the header line
         String line = br.readLine();
-        bw.write(line+"\n");
-
-        Set<String> unmappedDiseaseIds = new HashSet<>();
 
         // ncbi_gene_id    gene_symbol     hpo_id  hpo_name
         // 10      NAT2    HP:0000007      Autosomal recessive inheritance
@@ -97,7 +87,6 @@ public class HPOPhenotypeImporter extends BaseImporter {
                 log.warn("malformed line: "+line);
                 continue;
             }
-            String diseaseId = null; // OMIM/ORDO ID discontinued as of Apr 2023
             String geneSymbol = tokens[1];
             String geneId = tokens[0];
             String hpoId = tokens[2];
@@ -110,25 +99,15 @@ public class HPOPhenotypeImporter extends BaseImporter {
             } else {
                 RgdId id = rgdIds.get(0);
 
-                String notes = diseaseId;
-                Term rdoTerm = diseaseQC.qc(id.getRgdId(), diseaseId);
-                if( rdoTerm==null ) {
-                    if( diseaseId!=null ) {
-                        bw.write(line + "\n");
-                        unmappedDiseaseIds.add(diseaseId);
-                    }
-                }
-
-                if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, notes, rdoTerm)!=0 ) {
-                    log.debug("inserted " + id + " " + hpoId + " " + notes + " "+(rdoTerm==null?"":rdoTerm.getAccId()));
+                if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName)!=0 ) {
+                    log.debug("inserted " + id + " " + hpoId);
                     newRec++;
                 }
             }
         }
         br.close();
-        bw.close();
 
-        log.info("Phenotype Pipeline report for " + new Date().toString());
+        log.info("Phenotype Pipeline report for " + new Date());
         if( newRec!=0 ) {
             log.info(newRec + " annotations have been inserted");
         }
@@ -143,24 +122,9 @@ public class HPOPhenotypeImporter extends BaseImporter {
         int upRec = getCountOfUpToDateAnnots();
         log.info(upRec + " annotations are up-to-date");
 
-        handleUnmappedDiseaseIds(unmappedDiseaseIds);
-
         log.info(unprocessed.keySet().size() + " records have been skipped");
 
-        diseaseQC.dumpSummary(log);
-
         log.info("Skipped genes: "+unprocessed.entrySet().toString());
-    }
-
-    void handleUnmappedDiseaseIds(Set<String> unmappedDiseaseIds) throws Exception {
-
-        BufferedWriter bw = new BufferedWriter(new FileWriter(getUnmappedDiseasesFile()));
-        bw.write("Disease Id\n");
-
-        for( String omimId: unmappedDiseaseIds ) {
-            bw.write(omimId+"\n");
-        }
-        bw.close();
     }
 
     List<RgdId> getGenesByGeneId(String geneId) throws Exception {
@@ -175,12 +139,10 @@ public class HPOPhenotypeImporter extends BaseImporter {
      * @param evidence evidence code
      * @param accId accession id
      * @param term term name
-     * @param notes optional notes
-     * @param relatedTerm Term object representing a term related to the annotated term
      * @return count of rows affected
      * @throws Exception
      */
-    int insertOrUpdateAnnotation(RgdId id, String evidence, String accId, String term, String notes, Term relatedTerm) throws Exception {
+    int insertOrUpdateAnnotation(RgdId id, String evidence, String accId, String term) throws Exception {
 
         Annotation annot = new Annotation();
 
@@ -193,9 +155,6 @@ public class HPOPhenotypeImporter extends BaseImporter {
         annot.setLastModifiedDate(new Date());
         annot.setLastModifiedBy(getOwner());
         annot.setRgdObjectKey(id.getObjectKey());
-        if( relatedTerm!=null )
-            annot.setRelativeTo(relatedTerm.getAccId());
-        annot.setNotes(notes);
 
         Object rgdObj = dao.getObject(id.getRgdId());
         if( rgdObj instanceof ObjectWithName ) {
@@ -221,22 +180,6 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
     public void setMinFileSize(long minFileSize) {
         this.minFileSize = minFileSize;
-    }
-
-    public void setUnmappedPhenotypesFile(String unmappedPhenotypesFile) {
-        this.unmappedPhenotypesFile = unmappedPhenotypesFile;
-    }
-
-    public String getUnmappedPhenotypesFile() {
-        return unmappedPhenotypesFile;
-    }
-
-    public void setUnmappedDiseasesFile(String unmappedDiseasesFile) {
-        this.unmappedDiseasesFile = unmappedDiseasesFile;
-    }
-
-    public String getUnmappedDiseasesFile() {
-        return unmappedDiseasesFile;
     }
 
     public void setEvidenceCode(String evidenceCode) {
