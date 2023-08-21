@@ -72,7 +72,7 @@ public class AnnotationImportDao {
         // dump all to be deleted annotation to 'deleted_annots' log
         List<Integer> fullAnnotKeys = new ArrayList<>(staleAnnots.size());
         for( Annotation annot: staleAnnots ) {
-            log.info("DELETED "+annot.dump("|"));
+            log.debug("DELETED "+annot.dump("|"));
             fullAnnotKeys.add(annot.getKey());
         }
 

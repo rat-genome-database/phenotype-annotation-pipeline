@@ -1,3 +1,9 @@
+Aug 21, 2023
+  human phenotype ontology: NEW FORMAT (genes_to_phenotype.txt) -- they added columns 'frequence' and 'disease_id'
+     ncbi_gene_id [tab] gene_symbol [tab] hpo_id [tab] hpo_name [tab] frequency [tab] disease_id
+     16      AARS1   HP:0002460      Distal muscle weakness  15/15   OMIM:613287
+  hpo: now loading 'disease_id' into XREF_SOURCE field of annotations
+
 Apr 25, 2023
   human phenotype ontology: removed no longer used code
 

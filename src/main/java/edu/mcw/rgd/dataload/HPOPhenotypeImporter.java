@@ -26,10 +26,18 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
     private String evidenceCode;
 
+    final String EXPECTED_HEADER="ncbi_gene_id\tgene_symbol\thpo_id\thpo_name\tfrequency\tdisease_id";
+
     /**
      * download the file, parse it, create pheno annotations
      * <p>
-     * new file format: (as of Apr 2023) genes_to_phenotype.txt file
+     * new file format: (as of Jun 2023) genes_to_phenotype.txt file -- they added columns 'frequency' and 'disease_id'
+     * <pre>
+     ncbi_gene_id    gene_symbol     hpo_id  hpo_name        frequency       disease_id
+     10      NAT2    HP:0000007      Autosomal recessive inheritance -       OMIM:243400
+     16      AARS1   HP:0002460      Distal muscle weakness  15/15   OMIM:613287
+     * </pre><p>
+     * file format: (as of Apr 2023) genes_to_phenotype.txt file
      * <pre>
      * ncbi_gene_id [tab] gene_symbol [tab] hpo_id [tab] hpo_name
      * 10      NAT2    HP:0000007      Autosomal recessive inheritance
@@ -39,17 +47,6 @@ public class HPOPhenotypeImporter extends BaseImporter {
      * Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-ID [tab] HPO-Term-Name [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
      * 8192	CLPP	HP:0004322	Short stature		HP:0040283	-	mim2gene	OMIM:614129
      * 2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
-     * </pre>
-     * <p>
-     * new file format: (as of March 2020) phenotype_to_genes.txt file
-     * <pre>
-     * #Format: HPO-id [tab] HPO label [tab] entrez-gene-id [tab] entrez-gene-symbol [tab] Additional Info from G-D source [tab] G-D source [tab] disease-ID for link
-     * HP:0000002	Abnormality of body height	3954	LETM1	-	mim2gene	OMIM:194190
-     * </pre>
-     * old file format:
-     * <pre>
-     * #Format: diseaseId [tab] gene-symbol [tab] gene-id [tab] HPO-ID [tab] HPO-term-name
-     * OMIM:302800	GJB1	2705	HP:0002015	Dysphagia
      * </pre>
      * @throws Exception
      */
@@ -67,7 +64,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         File f = new File(importedFile);
 
-        log.info("Processing File of size " + f.length() + "\n");
+        log.info("processing file of size " + Utils.formatThousands(f.length()) + "\n");
 
         if (f.length()  < getMinFileSize()) {
             throw new Exception("FILE LENGTH TOO SHORT - PLEASE REVIEW - PIPELINE DID NOT RUN!");
@@ -75,15 +72,18 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         BufferedReader br = Utils.openReader(importedFile);
 
-        // skip the header line
+        // check the header line
         String line = br.readLine();
+        if( !line.equalsIgnoreCase(EXPECTED_HEADER) ) {
+            throw new Exception("***** UNEXPECTED HEADER! *****");
+        }
 
-        // ncbi_gene_id    gene_symbol     hpo_id  hpo_name
-        // 10      NAT2    HP:0000007      Autosomal recessive inheritance
+        //ncbi_gene_id    gene_symbol     hpo_id  hpo_name        frequency       disease_id
+        //16      AARS1   HP:0002460      Distal muscle weakness  15/15   OMIM:613287
         while ((line = br.readLine()) != null) {
             String[] tokens = line.split("\\t", -1);
 
-            if( tokens.length<4 ) {
+            if( tokens.length<6 ) {
                 log.warn("malformed line: "+line);
                 continue;
             }
@@ -91,6 +91,8 @@ public class HPOPhenotypeImporter extends BaseImporter {
             String geneId = tokens[0];
             String hpoId = tokens[2];
             String hpoTermName = tokens[3];
+            String frequency = tokens[4];
+            String diseaseId = tokens[5];
 
             List<RgdId> rgdIds = getGenesByGeneId(geneId);
 
@@ -99,7 +101,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
             } else {
                 RgdId id = rgdIds.get(0);
 
-                if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName)!=0 ) {
+                if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, diseaseId)!=0 ) {
                     log.debug("inserted " + id + " " + hpoId);
                     newRec++;
                 }
@@ -109,20 +111,20 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         log.info("Phenotype Pipeline report for " + new Date());
         if( newRec!=0 ) {
-            log.info(newRec + " annotations have been inserted");
+            log.info(Utils.formatThousands(newRec) + " annotations have been inserted");
         }
 
         int modifiedAnnotCount = updateAnnotations();
         if( modifiedAnnotCount!=0 ) {
-            log.info(modifiedAnnotCount+" annotations have been updated");
+            log.info(Utils.formatThousands(modifiedAnnotCount)+" annotations have been updated");
         }
 
         deleteStaleAnnotations();
 
         int upRec = getCountOfUpToDateAnnots();
-        log.info(upRec + " annotations are up-to-date");
+        log.info(Utils.formatThousands(upRec) + " annotations are up-to-date");
 
-        log.info(unprocessed.keySet().size() + " records have been skipped");
+        log.info(Utils.formatThousands(unprocessed.keySet().size()) + " records have been skipped");
 
         log.info("Skipped genes: "+unprocessed.entrySet().toString());
     }
@@ -139,10 +141,11 @@ public class HPOPhenotypeImporter extends BaseImporter {
      * @param evidence evidence code
      * @param accId accession id
      * @param term term name
+     * @param diseaseId OMIM:xxxxxx or ORPHA:xxx
      * @return count of rows affected
      * @throws Exception
      */
-    int insertOrUpdateAnnotation(RgdId id, String evidence, String accId, String term) throws Exception {
+    int insertOrUpdateAnnotation(RgdId id, String evidence, String accId, String term, String diseaseId) throws Exception {
 
         Annotation annot = new Annotation();
 
@@ -155,6 +158,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
         annot.setLastModifiedDate(new Date());
         annot.setLastModifiedBy(getOwner());
         annot.setRgdObjectKey(id.getObjectKey());
+        annot.setXrefSource(diseaseId);
 
         Object rgdObj = dao.getObject(id.getRgdId());
         if( rgdObj instanceof ObjectWithName ) {
