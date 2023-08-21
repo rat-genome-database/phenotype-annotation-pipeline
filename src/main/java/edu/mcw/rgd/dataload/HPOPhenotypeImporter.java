@@ -109,24 +109,21 @@ public class HPOPhenotypeImporter extends BaseImporter {
         }
         br.close();
 
-        log.info("Phenotype Pipeline report for " + new Date());
         if( newRec!=0 ) {
-            log.info(Utils.formatThousands(newRec) + " annotations have been inserted");
+            log.info("  "+Utils.formatThousands(newRec) + " annotations have been inserted");
         }
 
         int modifiedAnnotCount = updateAnnotations();
         if( modifiedAnnotCount!=0 ) {
-            log.info(Utils.formatThousands(modifiedAnnotCount)+" annotations have been updated");
+            log.info("  "+Utils.formatThousands(modifiedAnnotCount)+" annotations have been updated");
         }
 
         deleteStaleAnnotations();
 
         int upRec = getCountOfUpToDateAnnots();
-        log.info(Utils.formatThousands(upRec) + " annotations are up-to-date");
+        log.info("  "+Utils.formatThousands(upRec) + " annotations are up-to-date");
 
-        log.info(Utils.formatThousands(unprocessed.keySet().size()) + " records have been skipped");
-
-        log.info("Skipped genes: "+unprocessed.entrySet().toString());
+        log.info("  "+Utils.formatThousands(unprocessed.keySet().size()) + " records skipped; skipped genes: "+unprocessed.entrySet());
     }
 
     List<RgdId> getGenesByGeneId(String geneId) throws Exception {
