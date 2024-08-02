@@ -1,3 +1,6 @@
+Aug 02, 2024
+  human phenotype ontology: OMIM xrefs are now loaded as MIM xrefs
+
 Jan 05, 2024
   upgraded to java 17
 

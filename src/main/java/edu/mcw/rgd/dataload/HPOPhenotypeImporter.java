@@ -92,7 +92,8 @@ public class HPOPhenotypeImporter extends BaseImporter {
             String hpoId = tokens[2];
             String hpoTermName = tokens[3];
             String frequency = tokens[4];
-            String diseaseId = tokens[5];
+            // disease_id: convert OMIM:xxxxxx to MIM:xxxxxx
+            String diseaseId = tokens[5].replace("OMIM:", "MIM:");
 
             List<RgdId> rgdIds = getGenesByGeneId(geneId);
 
@@ -138,7 +139,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
      * @param evidence evidence code
      * @param accId accession id
      * @param term term name
-     * @param diseaseId OMIM:xxxxxx or ORPHA:xxx
+     * @param diseaseId MIM:xxxxxx or ORPHA:xxx
      * @return count of rows affected
      * @throws Exception
      */
