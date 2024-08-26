@@ -1,6 +1,6 @@
 # load MP (Mouse Phenotype Ontology) annotations
 #
-APPHOME=/home/rgddata/pipelines/PhenotypeAnnotation
+APPHOME="/home/rgddata/pipelines/phenotype-annotation-pipeline"
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 
 EMAIL_LIST=mtutaj@mcw.edu
