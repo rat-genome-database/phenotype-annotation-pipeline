@@ -3,7 +3,7 @@
 # phenotype annotation loading pipeline master script
 #
 . /etc/profile
-APPNAME=PhenotypeAnnotation
+APPNAME=phenotype-annotation-pipeline
 
 APPDIR=/home/rgddata/pipelines/$APPNAME
 cd $APPDIR
