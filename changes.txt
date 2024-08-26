@@ -1,3 +1,6 @@
+Aug 28, 2024
+  renamed to 'phenotype-annotation-pipeline'
+
 Aug 02, 2024
   human phenotype ontology: OMIM xrefs are now loaded as MIM xrefs
 
