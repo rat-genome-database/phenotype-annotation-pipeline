@@ -5,7 +5,7 @@ SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 
 EMAIL_LIST=mtutaj@mcw.edu
 if [ "$SERVER" = "REED" ]; then
-  EMAIL_LIST=rgd.developers@mcw.edu
+  EMAIL_LIST=rgd.devops@mcw.edu
 fi
 
 $APPHOME/run.sh -MGIPhenotype 2>&1 > $APPHOME/run_mouse.log

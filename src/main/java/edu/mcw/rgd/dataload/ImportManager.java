@@ -52,10 +52,11 @@ public class ImportManager {
         }
 
         importer.log.info("OK -- elapsed "+ Utils.formatElapsedTime(startTime, System.currentTimeMillis()));
+        importer.log.info("===");
     }
 
     private static void usage() {
-        System.out.println("Usage: java -Dspring.config=[path] -Dlog4j.configuration=file:///[path] -jar annotationImport.jar "+
+        System.out.println("Usage: java -Dspring.config=[path] -Dlog4j.configurationFile=file:///[path] -jar annotationImport.jar "+
                 "-MGIPhenotype|-HPOPhenotype");
         System.exit(1);
     }
