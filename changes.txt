@@ -1,3 +1,6 @@
+Jan 02, 2025
+  added log 'dbg_mouse' to capture warning messages from qc
+
 Nov 19, 2024
   renamed github branch master to main
 
