@@ -1,3 +1,6 @@
+Mar 28, 2025
+  hpo-phenotype: added loading of PMID ids into XREF_SOURCE field of annotations
+
 Jan 02, 2025
   added log 'dbg_mouse' to capture warning messages from qc
 

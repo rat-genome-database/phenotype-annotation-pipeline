@@ -19,6 +19,7 @@ import java.util.*;
  */
 public class HPOPhenotypeImporter extends BaseImporter {
 
+    private String phenotypeFile;
     private long minFileSize;
 
     private Map<String,String> unprocessed = new HashMap<>();
@@ -41,18 +42,14 @@ public class HPOPhenotypeImporter extends BaseImporter {
      * <pre>
      * ncbi_gene_id [tab] gene_symbol [tab] hpo_id [tab] hpo_name
      * 10      NAT2    HP:0000007      Autosomal recessive inheritance
-     * </pre><p>
-     * new file format: (as of May 2020) genes_to_phenotype.txt file
-     * <pre>
-     * Format: entrez-gene-id [tab] entrez-gene-symbol [tab] HPO-Term-ID [tab] HPO-Term-Name [tab] Frequency-Raw [tab] Frequency-HPO [tab] Additional Info from G-D source [tab] G-D source<tab>disease-ID for link
-     * 8192	CLPP	HP:0004322	Short stature		HP:0040283	-	mim2gene	OMIM:614129
-     * 2	A2M	HP:0001300	Parkinsonism			susceptibility	mim2gene	OMIM:104300
      * </pre>
      * @throws Exception
      */
     public void run() throws Exception{
 
         super.run();
+
+        Map<String, String> hpWithOmim2PmidMap = loadPubMedIds();
 
         FileDownloader fd = new FileDownloader();
         fd.setExternalFile(this.getFileURL());
@@ -92,8 +89,18 @@ public class HPOPhenotypeImporter extends BaseImporter {
             String hpoId = tokens[2];
             String hpoTermName = tokens[3];
             String frequency = tokens[4];
+            String omimOrphaId = tokens[5];
+
             // disease_id: convert OMIM:xxxxxx to MIM:xxxxxx
-            String diseaseId = tokens[5].replace("OMIM:", "MIM:");
+            String diseaseId = omimOrphaId.replace("OMIM:", "MIM:");
+
+            String hpOmimId = hpoId+"|"+omimOrphaId;
+            String pmid = hpWithOmim2PmidMap.get(hpOmimId);
+
+            String xrefSource = diseaseId;
+            if( pmid!=null ) {
+                xrefSource += "|"+pmid;
+            }
 
             List<RgdId> rgdIds = getGenesByGeneId(geneId);
 
@@ -102,7 +109,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
             } else {
                 RgdId id = rgdIds.get(0);
 
-                if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, diseaseId)!=0 ) {
+                if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, xrefSource)!=0 ) {
                     log.debug("inserted " + id + " " + hpoId);
                     newRec++;
                 }
@@ -133,17 +140,58 @@ public class HPOPhenotypeImporter extends BaseImporter {
         return rgdIds;
     }
 
+    Map<String, String> loadPubMedIds() throws Exception {
+
+        Map<String, String> hpWithOmim2PmidMap = new HashMap<>();
+
+        FileDownloader fd = new FileDownloader();
+        fd.setExternalFile(getPhenotypeFile());
+        fd.setLocalFile(this.getWorkDirectory() + "/" + "phenotype.hpoa");
+        fd.setAppendDateStamp(true);
+        fd.setUseCompression(true);
+
+        String importedFile = fd.downloadNew();
+
+        BufferedReader in = Utils.openReader(importedFile);
+        String line;
+        while( (line=in.readLine())!=null ) {
+
+            // sample lines:
+            //database_id	disease_name	qualifier	hpo_id	reference	evidence	onset	frequency	sex	modifier	aspect	biocuration
+            //OMIM:619340	Developmental and epileptic encephalopathy 96		HP:0011097	PMID:31675180	PCS		1/2			P	HPO:probinson[2021-06-21]
+            // ORPHA:1777	Temtamy syndrome		HP:0002970	ORPHA:1777	TAS		HP:0040282			P	ORPHA:orphadata[2025-03-03]
+
+            // process only lines starting with 'OMIM:' or 'ORPHA:'
+            if( !(line.startsWith("OMIM:") || line.startsWith("ORPHA:")) ) {
+                continue;
+            }
+            String[] cols = line.split("[\\t]", -1);
+            String omimOrpha = cols[0];
+            String hpoId = cols[3];
+            String pmidId = cols[4];
+            if( !pmidId.startsWith("PMID:") ) {
+                continue;
+            }
+
+            String id = hpoId+"|"+omimOrpha;
+            hpWithOmim2PmidMap.put( id, pmidId);
+        }
+        in.close();
+
+        return hpWithOmim2PmidMap;
+    }
+
     /**
      * Inserts an annotation into the datastore
      * @param id rgd id
      * @param evidence evidence code
      * @param accId accession id
      * @param term term name
-     * @param diseaseId MIM:xxxxxx or ORPHA:xxx
+     * @param xrefSource MIM:xxxxxx or ORPHA:xxx concatenated with PMID id
      * @return count of rows affected
      * @throws Exception
      */
-    int insertOrUpdateAnnotation(RgdId id, String evidence, String accId, String term, String diseaseId) throws Exception {
+    int insertOrUpdateAnnotation(RgdId id, String evidence, String accId, String term, String xrefSource) throws Exception {
 
         Annotation annot = new Annotation();
 
@@ -156,7 +204,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
         annot.setLastModifiedDate(new Date());
         annot.setLastModifiedBy(getOwner());
         annot.setRgdObjectKey(id.getObjectKey());
-        annot.setXrefSource(diseaseId);
+        annot.setXrefSource(xrefSource);
 
         Object rgdObj = dao.getObject(id.getRgdId());
         if( rgdObj instanceof ObjectWithName ) {
@@ -194,5 +242,13 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
     public String getLoggerName() {
         return "status_human";
+    }
+
+    public String getPhenotypeFile() {
+        return phenotypeFile;
+    }
+
+    public void setPhenotypeFile(String phenotypeFile) {
+        this.phenotypeFile = phenotypeFile;
     }
 }
