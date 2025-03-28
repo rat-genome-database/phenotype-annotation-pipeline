@@ -172,6 +172,9 @@ public class HPOPhenotypeImporter extends BaseImporter {
             if( !pmidId.startsWith("PMID:") ) {
                 continue;
             }
+            if( pmidId.contains(";") ) {
+                pmidId = pmidId.replace(';', '|');
+            }
 
             String id = hpoId+"|"+omimOrpha;
             hpWithOmim2PmidMap.put( id, pmidId);
