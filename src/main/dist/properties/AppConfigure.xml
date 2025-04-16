@@ -24,6 +24,6 @@
         <property name="refRgdId" value="8699517" />
         <property name="evidenceCode" value="IAGP" />
         <property name="minFileSize" value="500000" /><!--min file size of compressed source file -->
-        <property name="staleAnnotThreshold" value="500" /><!--in percent: if there are more annots to be deleted than the threshold, no annots will be deleted, and alert will be issued -->
+        <property name="staleAnnotThreshold" value="5" /><!--in percent: if there are more annots to be deleted than the threshold, no annots will be deleted, and alert will be issued -->
     </bean>
 </beans>
