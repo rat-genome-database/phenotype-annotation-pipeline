@@ -1,3 +1,6 @@
+Apr 16, 2025
+  hpo-phenotype: added merging of annotations by XREF_SRC
+
 Mar 28, 2025
   hpo-phenotype: added loading of PMID ids into XREF_SOURCE field of annotations
 

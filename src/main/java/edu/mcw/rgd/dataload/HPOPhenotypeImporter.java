@@ -49,6 +49,36 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         super.run();
 
+        List<Annotation> incomingAnnotations = loadIncomingAnnotations();
+        Collection<Annotation> mergedAnnotations = mergeAnnotations(incomingAnnotations);
+        log.info("  merged "+incomingAnnotations.size()+" into "+mergedAnnotations.size()+" annotations by xref");
+
+        for( Annotation a: mergedAnnotations ) {
+
+            if( insertOrUpdateAnnotation(a)!=0 ) {
+                newRec++;
+            }
+        }
+
+        if( newRec!=0 ) {
+            log.info("  "+Utils.formatThousands(newRec) + " annotations have been inserted");
+        }
+
+        int modifiedAnnotCount = updateAnnotations();
+        if( modifiedAnnotCount!=0 ) {
+            log.info("  "+Utils.formatThousands(modifiedAnnotCount)+" annotations have been updated");
+        }
+
+        deleteStaleAnnotations();
+
+        int upRec = getCountOfUpToDateAnnots();
+        log.info("  "+Utils.formatThousands(upRec) + " annotations are up-to-date");
+
+        log.info("  "+Utils.formatThousands(unprocessed.keySet().size()) + " records skipped; skipped genes: "+unprocessed.entrySet());
+    }
+
+    List<Annotation> loadIncomingAnnotations() throws Exception{
+
         Map<String, String> hpWithOmim2PmidMap = loadPubMedIds();
 
         FileDownloader fd = new FileDownloader();
@@ -74,6 +104,8 @@ public class HPOPhenotypeImporter extends BaseImporter {
         if( !line.equalsIgnoreCase(EXPECTED_HEADER) ) {
             throw new Exception("***** UNEXPECTED HEADER! *****");
         }
+
+        List<Annotation> incomingAnnotations = new ArrayList<>();
 
         //ncbi_gene_id    gene_symbol     hpo_id  hpo_name        frequency       disease_id
         //16      AARS1   HP:0002460      Distal muscle weakness  15/15   OMIM:613287
@@ -109,29 +141,15 @@ public class HPOPhenotypeImporter extends BaseImporter {
             } else {
                 RgdId id = rgdIds.get(0);
 
-                if( insertOrUpdateAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, xrefSource)!=0 ) {
-                    log.debug("inserted " + id + " " + hpoId);
-                    newRec++;
+                if( xrefSource.contains("OMIM") || xrefSource.contains("http") ) {
+                    System.out.println("problem");
                 }
+                createAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, xrefSource, incomingAnnotations);
             }
         }
         br.close();
 
-        if( newRec!=0 ) {
-            log.info("  "+Utils.formatThousands(newRec) + " annotations have been inserted");
-        }
-
-        int modifiedAnnotCount = updateAnnotations();
-        if( modifiedAnnotCount!=0 ) {
-            log.info("  "+Utils.formatThousands(modifiedAnnotCount)+" annotations have been updated");
-        }
-
-        deleteStaleAnnotations();
-
-        int upRec = getCountOfUpToDateAnnots();
-        log.info("  "+Utils.formatThousands(upRec) + " annotations are up-to-date");
-
-        log.info("  "+Utils.formatThousands(unprocessed.keySet().size()) + " records skipped; skipped genes: "+unprocessed.entrySet());
+        return incomingAnnotations;
     }
 
     List<RgdId> getGenesByGeneId(String geneId) throws Exception {
@@ -169,15 +187,23 @@ public class HPOPhenotypeImporter extends BaseImporter {
             String omimOrpha = cols[0];
             String hpoId = cols[3];
             String pmidId = cols[4];
-            if( !pmidId.startsWith("PMID:") ) {
-                continue;
-            }
-            if( pmidId.contains(";") ) {
-                pmidId = pmidId.replace(';', '|');
+
+            // there could be multiple PMIDs separated by ';'
+            Set<String> pmidIds = new TreeSet<>();
+            String[] ids = pmidId.split("[\\;]");
+
+            for( String id: ids ) {
+
+                if (id.startsWith("PMID:")) {
+                    pmidIds.add(id);
+                }
             }
 
-            String id = hpoId+"|"+omimOrpha;
-            hpWithOmim2PmidMap.put( id, pmidId);
+            if( !pmidIds.isEmpty() ) {
+                String pmidIdsStr = Utils.concatenate(pmidIds, "|");
+                String key = hpoId + "|" + omimOrpha;
+                hpWithOmim2PmidMap.put(key, pmidIdsStr);
+            }
         }
         in.close();
 
@@ -191,10 +217,9 @@ public class HPOPhenotypeImporter extends BaseImporter {
      * @param accId accession id
      * @param term term name
      * @param xrefSource MIM:xxxxxx or ORPHA:xxx concatenated with PMID id
-     * @return count of rows affected
      * @throws Exception
      */
-    int insertOrUpdateAnnotation(RgdId id, String evidence, String accId, String term, String xrefSource) throws Exception {
+    void createAnnotation(RgdId id, String evidence, String accId, String term, String xrefSource, List<Annotation> incomingAnnotations) throws Exception {
 
         Annotation annot = new Annotation();
 
@@ -222,9 +247,41 @@ public class HPOPhenotypeImporter extends BaseImporter {
         annot.setTermAcc(accId);
         annot.setTerm(term);
 
-        int result = insertOrUpdateAnnotation(annot);
+        incomingAnnotations.add(annot);
+    }
 
-        return result;
+    // merge by XREF_SOURCE: all other fields the same
+    Collection<Annotation> mergeAnnotations( List<Annotation> incomingAnnotations ) throws CloneNotSupportedException {
+
+        Map<String, Annotation> mergedAnnotations = new HashMap<>();
+
+        for( Annotation ann: incomingAnnotations ) {
+            Annotation a = (Annotation) ann.clone();
+            String mergeKey = createMergeKey(a);
+            Annotation ma = mergedAnnotations.get(mergeKey);
+            if( ma==null ) {
+                mergedAnnotations.put(mergeKey, a);
+            } else {
+                if( ma.getXrefSource()==null ) {
+                    ma.setXrefSource(a.getXrefSource());
+                } else {
+                    Set<String> xrefs = new TreeSet<>();
+                    xrefs.add(ma.getXrefSource());
+                    xrefs.add(a.getXrefSource());
+                    String xrefsStr = Utils.concatenate(xrefs, "|");
+                    ma.setXrefSource(xrefsStr);
+                }
+            }
+        }
+
+        return mergedAnnotations.values();
+    }
+
+    private String createMergeKey(Annotation a) {
+        return a.getAnnotatedObjectRgdId()+"|"+a.getTermAcc()+"|"+a.getRefRgdId()
+                +"|" + Utils.defaultString(a.getQualifier())
+                +"|" + Utils.defaultString(a.getWithInfo())
+                +"|" + Utils.defaultString(a.getEvidence());
     }
 
     public long getMinFileSize() {
