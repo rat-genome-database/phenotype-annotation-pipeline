@@ -1,3 +1,6 @@
+May 12, 2025
+  hpo-phenotype: updated obophenotype ontology to 2025-05-06 release
+
 Apr 16, 2025
   hpo-phenotype: added merging of annotations by XREF_SRC
 
