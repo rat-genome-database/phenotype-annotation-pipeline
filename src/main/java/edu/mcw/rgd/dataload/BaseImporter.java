@@ -67,7 +67,7 @@ public abstract class BaseImporter {
         this.workDirectory = workDirectory;
     }
 
-    public void run() throws Exception {
+    public int run() throws Exception {
         dtStart = new Date();
         log.info(getVersion());
         log.info("   "+dao.getConnectionInfo());
@@ -76,6 +76,7 @@ public abstract class BaseImporter {
 
         int inRgdAnnotCount = annotCache.loadAnnotations(dao, getRefRgdId());
         log.info("annotations in-rgd preloaded: "+ Utils.formatThousands(inRgdAnnotCount));
+        return inRgdAnnotCount;
     }
 
 
@@ -97,6 +98,7 @@ public abstract class BaseImporter {
         return annotCache.updateAnnotations(dao);
     }
 
+    /*
     public void deleteStaleAnnotations() throws Exception {
 
         // get total number of annotations in database
@@ -115,7 +117,26 @@ public abstract class BaseImporter {
             log.info("stale annotations removed: "+Utils.formatThousands(recordsRemoved));
         }
     }
+*/
+    public void deleteStaleAnnotations( int originalAnnotCount, int insertedAnnotCount ) throws Exception {
 
+        // compute maximum allowed number of stale annotations to be deleted
+        int staleAnnotDeleteLimit = (getStaleAnnotThreshold() * originalAnnotCount) / 100;
+
+        List<Annotation> staleAnnots = annotCache.getStaleAnnotations(dtStart);
+
+        int newAnnotCount = originalAnnotCount + insertedAnnotCount - staleAnnots.size();
+        if( newAnnotCount < originalAnnotCount - staleAnnotDeleteLimit ) {
+            log.info("*** stale annotations " + getStaleAnnotThreshold() + "% threshold is " + staleAnnotDeleteLimit);
+            log.warn("*** DELETE ABORTED: count of stale annotations " + staleAnnots.size() + " exceeds the allowed limit of " + staleAnnotDeleteLimit);
+            return;
+        }
+
+        final int recordsRemoved = dao.deleteAnnotations(staleAnnots);
+        if( recordsRemoved!=0 ){
+            log.info("stale annotations removed: "+Utils.formatThousands(recordsRemoved));
+        }
+    }
 
     public void setVersion(String version) {
         this.version = version;

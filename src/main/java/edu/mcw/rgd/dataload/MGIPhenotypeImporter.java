@@ -27,9 +27,9 @@ public class MGIPhenotypeImporter extends BaseImporter {
      * Main method called by the import manager
      * @throws Exception
      */
-    public void run() throws Exception{
+    public int run() throws Exception{
 
-        super.run();
+        int inRgdAnnotCount = super.run();
 
         FileDownloader fd = new FileDownloader();
         fd.setExternalFile(this.getFileURL());
@@ -109,7 +109,7 @@ public class MGIPhenotypeImporter extends BaseImporter {
             log.info("annotations updated: "+Utils.formatThousands(modifiedAnnotCount));
         }
 
-        deleteStaleAnnotations();
+        deleteStaleAnnotations( inRgdAnnotCount, newRec );
 
         log.info("annotations up-to-date: "+Utils.formatThousands(getCountOfUpToDateAnnots()));
 
@@ -118,6 +118,8 @@ public class MGIPhenotypeImporter extends BaseImporter {
         if( invalidMP>0 ) {
             log.info(invalidMP + " incoming annotations were skipped because MP term was invalid");
         }
+
+        return 0;
     }
 
     /**

@@ -39,7 +39,7 @@ public class AnnotationImportDao {
         }
         return list;
     }
-    private Map<String,List<RgdId>> _cache = new HashMap<>();
+    private final Map<String,List<RgdId>> _cache = new HashMap<>();
 
 
     List<Annotation> getAnnotationByEvidence(int rgdId, String accId, int ownerId, String evidence) throws Exception {
@@ -50,10 +50,7 @@ public class AnnotationImportDao {
         return adao.getAnnotationsByReference(refRgdId);
     }
 
-    public List<Annotation> getAnnotations(int rgdId, String termAcc) throws Exception {
-        return adao.getAnnotations(rgdId, termAcc);
-    }
-
+    /*
     public int getCountOfAnnotationsByReference(int refRgdId, String src) throws Exception {
         return adao.getCountOfAnnotationsByReference(refRgdId, src);
     }
@@ -68,6 +65,21 @@ public class AnnotationImportDao {
             }
             return staleAnnots.size();
         }
+
+        // dump all to be deleted annotation to 'deleted_annots' log
+        List<Integer> fullAnnotKeys = new ArrayList<>(staleAnnots.size());
+        for( Annotation annot: staleAnnots ) {
+            log.debug("DELETED "+annot.dump("|"));
+            fullAnnotKeys.add(annot.getKey());
+        }
+
+        // delete the annotations
+        return adao.deleteAnnotations(fullAnnotKeys);
+    }
+*/
+    public int deleteAnnotations( List<Annotation> staleAnnots ) throws Exception {
+
+        Logger log = LogManager.getLogger("deleted_annots");
 
         // dump all to be deleted annotation to 'deleted_annots' log
         List<Integer> fullAnnotKeys = new ArrayList<>(staleAnnots.size());
@@ -116,15 +128,4 @@ public class AnnotationImportDao {
     public Term getTermByAccId(String accId) throws Exception {
         return odao.getTermWithStatsCached(accId);
     }
-
-
-    public List<Term> getRdoTermsBySynonym(String id) throws Exception {
-        List<Term> terms = _omimCache.get(id);
-        if( terms==null ) {
-            terms = odao.getTermsBySynonym("RDO", id, "exact");
-            _omimCache.put(id, terms);
-        }
-        return terms;
-    }
-    private Map<String,List<Term>> _omimCache = new HashMap<>();
 }

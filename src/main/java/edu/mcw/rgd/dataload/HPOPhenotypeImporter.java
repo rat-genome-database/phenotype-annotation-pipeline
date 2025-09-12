@@ -45,9 +45,9 @@ public class HPOPhenotypeImporter extends BaseImporter {
      * </pre>
      * @throws Exception
      */
-    public void run() throws Exception{
+    public int run() throws Exception{
 
-        super.run();
+        int inRgdAnnotCount = super.run();
 
         List<Annotation> incomingAnnotations = loadIncomingAnnotations();
         Collection<Annotation> mergedAnnotations = mergeAnnotations(incomingAnnotations);
@@ -69,12 +69,14 @@ public class HPOPhenotypeImporter extends BaseImporter {
             log.info("  "+Utils.formatThousands(modifiedAnnotCount)+" annotations have been updated");
         }
 
-        deleteStaleAnnotations();
+        deleteStaleAnnotations( inRgdAnnotCount, newRec );
 
         int upRec = getCountOfUpToDateAnnots();
         log.info("  "+Utils.formatThousands(upRec) + " annotations are up-to-date");
 
         log.info("  "+Utils.formatThousands(unprocessed.keySet().size()) + " records skipped; skipped genes: "+unprocessed.entrySet());
+
+        return 0;
     }
 
     List<Annotation> loadIncomingAnnotations() throws Exception{
