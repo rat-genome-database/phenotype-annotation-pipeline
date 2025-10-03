@@ -1,3 +1,6 @@
+Oct 03, 2025
+  updated dependencies
+  
 Sep 12, 2025
   hpo-phenotype: updated obophenotype ontology to 2025-09-01 release
   improved handling of obsolete annotations
