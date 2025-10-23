@@ -16,7 +16,7 @@
 
     <bean id="hpoPhenotype" class="edu.mcw.rgd.dataload.HPOPhenotypeImporter">
         <property name="version" value="HPOPhenotypeImporter  -- build Oct 23, 2025" />
-        <property name="fileURL" value="http://purl.obolibrary.org/obo/hp/hpoa/genes_to_phenotype.txt" />
+        <property name="fileURL"       value="https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-10-22/genes_to_phenotype.txt" />
         <property name="phenotypeFile" value="https://github.com/obophenotype/human-phenotype-ontology/releases/download/v2025-10-22/phenotype.hpoa" />
         <property name="workDirectory" value="data" />
         <property name="owner" value="66" />
