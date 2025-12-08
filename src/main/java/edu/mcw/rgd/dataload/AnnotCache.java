@@ -112,7 +112,7 @@ public class AnnotCache {
                 annotsForUpdate.put(annot.getKey(), aForUpdate);
             } else {
                 // we already have an annotation for update:
-                a.setRelativeTo(merge(a.getRelativeTo(), annot.getRelativeTo()));
+                //a.setRelativeTo(merge(a.getRelativeTo(), annot.getRelativeTo()));
                 a.setNotes(merge(a.getNotes(), annot.getNotes()));
             }
         }
@@ -141,7 +141,7 @@ public class AnnotCache {
         return annotsForUpdate.size();
     }
     /**
-     * compare fields that are NOT in FULL_ANNOT UNIQUE KEY: DATA_SRC, RELATIVE_TO, NOTES
+     * compare fields that are NOT in FULL_ANNOT UNIQUE KEY: DATA_SRC, NOTES
      * @param a1 Annotation object 1
      * @param a2 Annotation object 2
      * @return true or false
@@ -149,7 +149,7 @@ public class AnnotCache {
     public boolean areSameAnnotations(Annotation a1, Annotation a2) {
 
         return Utils.stringsAreEqual(a1.getDataSrc(), a2.getDataSrc())
-            && Utils.stringsAreEqual(a1.getRelativeTo(), a2.getRelativeTo())
+            //&& Utils.stringsAreEqual(a1.getRelativeTo(), a2.getRelativeTo())
             && Utils.stringsAreEqual(a1.getNotes(), a2.getNotes());
     }
 
