@@ -103,7 +103,7 @@ public class AnnotCache {
         annot.setKey(annotInRgd.getKey());
         annotKeysUpdated.add(annotInRgd.getKey());
 
-        // check if fields changed: DATA_SRC, RELATIVE_TO, NOTES
+        // check if fields changed: DATA_SRC, NOTES
         if( !areSameAnnotations(annotInRgd, annot) ) {
 
             Annotation a = annotsForUpdate.get(annot.getKey());
@@ -112,7 +112,6 @@ public class AnnotCache {
                 annotsForUpdate.put(annot.getKey(), aForUpdate);
             } else {
                 // we already have an annotation for update:
-                //a.setRelativeTo(merge(a.getRelativeTo(), annot.getRelativeTo()));
                 a.setNotes(merge(a.getNotes(), annot.getNotes()));
             }
         }
@@ -149,15 +148,18 @@ public class AnnotCache {
     public boolean areSameAnnotations(Annotation a1, Annotation a2) {
 
         return Utils.stringsAreEqual(a1.getDataSrc(), a2.getDataSrc())
-            //&& Utils.stringsAreEqual(a1.getRelativeTo(), a2.getRelativeTo())
             && Utils.stringsAreEqual(a1.getNotes(), a2.getNotes());
     }
 
     private String createAnnotKey(Annotation a) {
-        return a.getRefRgdId()+"|"+a.getAnnotatedObjectRgdId()+"|"+a.getTermAcc()
-                +"|" + Utils.defaultString(a.getXrefSource())
-                +"|" + Utils.defaultString(a.getQualifier())
-                +"|" + Utils.defaultString(a.getWithInfo())
-                +"|" + Utils.defaultString(a.getEvidence());
+        return a.getRefRgdId()
+            +"|"+a.getAnnotatedObjectRgdId()
+            +"|"+a.getTermAcc()
+            +"|" + Utils.defaultString(a.getXrefSource())
+            +"|" + Utils.defaultString(a.getQualifier())
+            +"|" + Utils.defaultString(a.getWithInfo())
+            +"|" + Utils.defaultString(a.getEvidence())
+            +"|" + Utils.defaultString(a.getQualifier2())
+            +"|" + Utils.defaultString(a.getAssociatedWith());
     }
 }

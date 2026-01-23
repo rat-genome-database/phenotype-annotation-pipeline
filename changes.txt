@@ -1,3 +1,6 @@
+Jan 23, 2026
+  AnnotCache: updated to handle new fields in unique index: QUALIFIER2 and ASSOCIATED_WITH
+
 Dec 08, 2025
   removed code dealing with obsolete field FULL_ANNOT.RELATIVE_TO
 
