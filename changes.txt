@@ -1,3 +1,6 @@
+Feb 09, 2026
+  hpo-phenotype: updated obophenotype ontology to 2026-01-08 release
+
 Jan 23, 2026
   AnnotCache: updated to handle new fields in unique index: QUALIFIER2 and ASSOCIATED_WITH
 

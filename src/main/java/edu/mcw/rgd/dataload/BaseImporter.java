@@ -98,26 +98,6 @@ public abstract class BaseImporter {
         return annotCache.updateAnnotations(dao);
     }
 
-    /*
-    public void deleteStaleAnnotations() throws Exception {
-
-        // get total number of annotations in database
-        int totalAnnots = dao.getCountOfAnnotationsByReference(getRefRgdId(), getDataSource());
-
-        // compute maximum allowed number of stale annotations to be deleted
-        int staleAnnotDeleteLimit = (getStaleAnnotThreshold() * totalAnnots) / 100;
-
-        List<Annotation> staleAnnots = annotCache.getStaleAnnotations(dtStart);
-
-        final int recordsRemoved = dao.deleteAnnotations(staleAnnots, staleAnnotDeleteLimit);
-        if( recordsRemoved > staleAnnotDeleteLimit ) {
-            log.info("*** stale annotations "+getStaleAnnotThreshold()+"% threshold is "+staleAnnotDeleteLimit);
-            log.warn("*** DELETE ABORTED: count of stale annotations "+recordsRemoved+" exceeds the allowed limit of "+staleAnnotDeleteLimit);
-        } else if( recordsRemoved!=0 ){
-            log.info("stale annotations removed: "+Utils.formatThousands(recordsRemoved));
-        }
-    }
-*/
     public void deleteStaleAnnotations( int originalAnnotCount, int insertedAnnotCount ) throws Exception {
 
         // compute maximum allowed number of stale annotations to be deleted
