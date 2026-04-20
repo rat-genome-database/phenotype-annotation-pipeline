@@ -1,3 +1,6 @@
+Apr 20, 2026
+  added memory usage monitoring; updated HPO ontology to 2026-02-16 release; updated dependencies
+
 Feb 09, 2026
   hpo-phenotype: updated obophenotype ontology to 2026-01-08 release
 

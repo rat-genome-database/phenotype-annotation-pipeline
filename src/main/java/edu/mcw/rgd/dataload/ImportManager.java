@@ -1,5 +1,6 @@
 package edu.mcw.rgd.dataload;
 
+import edu.mcw.rgd.process.MemoryMonitor;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +44,9 @@ public class ImportManager {
 
         long startTime = System.currentTimeMillis();
 
+        MemoryMonitor memoryMonitor = new MemoryMonitor();
+        memoryMonitor.start();
+
         BaseImporter importer = (BaseImporter) bf.getBean(beanId);
         try {
             importer.run();
@@ -50,6 +54,9 @@ public class ImportManager {
             Utils.printStackTrace(e, importer.log);
             throw e;
         }
+
+        memoryMonitor.stop();
+        importer.log.info(memoryMonitor.getSummary());
 
         importer.log.info("OK -- elapsed "+ Utils.formatElapsedTime(startTime, System.currentTimeMillis()));
         importer.log.info("===");
