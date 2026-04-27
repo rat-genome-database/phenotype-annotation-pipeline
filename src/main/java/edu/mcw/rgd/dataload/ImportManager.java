@@ -48,18 +48,19 @@ public class ImportManager {
         memoryMonitor.start();
 
         BaseImporter importer = (BaseImporter) bf.getBean(beanId);
+        boolean ok = false;
         try {
             importer.run();
-        }catch (Exception e) {
+            ok = true;
+        } catch (Exception e) {
             Utils.printStackTrace(e, importer.log);
             throw e;
+        } finally {
+            memoryMonitor.stop();
+            importer.log.info(memoryMonitor.getSummary());
+            importer.log.info((ok ? "OK -- " : "FAILED -- ") + "elapsed " + Utils.formatElapsedTime(startTime, System.currentTimeMillis()));
+            importer.log.info("===");
         }
-
-        memoryMonitor.stop();
-        importer.log.info(memoryMonitor.getSummary());
-
-        importer.log.info("OK -- elapsed "+ Utils.formatElapsedTime(startTime, System.currentTimeMillis()));
-        importer.log.info("===");
     }
 
     private static void usage() {

@@ -1,3 +1,6 @@
+Apr 27, 2026
+  bug fix: log memory summary and elapsed time on failure path; updated README; updated dependencies
+
 Apr 20, 2026
   added memory usage monitoring; updated HPO ontology to 2026-02-16 release; updated dependencies
 
