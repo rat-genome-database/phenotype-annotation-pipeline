@@ -5,7 +5,7 @@ import edu.mcw.rgd.datamodel.ObjectWithSymbol;
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
-import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.FileDownloader2;
 import edu.mcw.rgd.process.Utils;
 
 import java.io.*;
@@ -83,7 +83,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         Map<String, String> hpWithOmim2PmidMap = loadPubMedIds();
 
-        FileDownloader fd = new FileDownloader();
+        FileDownloader2 fd = new FileDownloader2();
         fd.setExternalFile(this.getFileURL());
         fd.setLocalFile(this.getWorkDirectory() + "/" + "HPOPheno.txt");
         fd.setAppendDateStamp(true);
@@ -164,7 +164,7 @@ public class HPOPhenotypeImporter extends BaseImporter {
 
         Map<String, String> hpWithOmim2PmidMap = new HashMap<>();
 
-        FileDownloader fd = new FileDownloader();
+        FileDownloader2 fd = new FileDownloader2();
         fd.setExternalFile(getPhenotypeFile());
         fd.setLocalFile(this.getWorkDirectory() + "/" + "phenotype.hpoa");
         fd.setAppendDateStamp(true);

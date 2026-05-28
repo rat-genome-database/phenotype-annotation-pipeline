@@ -1,3 +1,6 @@
+May 27, 2026
+  switched to FileDownloader2; MGI URL flipped to https; updated dependencies
+
 Apr 27, 2026
   bug fix: log memory summary and elapsed time on failure path; updated README; updated dependencies
 

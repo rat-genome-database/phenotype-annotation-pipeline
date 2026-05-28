@@ -3,7 +3,7 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
-import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.FileDownloader2;
 import edu.mcw.rgd.process.Utils;
 
 import java.io.*;
@@ -31,7 +31,7 @@ public class MGIPhenotypeImporter extends BaseImporter {
 
         int inRgdAnnotCount = super.run();
 
-        FileDownloader fd = new FileDownloader();
+        FileDownloader2 fd = new FileDownloader2();
         fd.setExternalFile(this.getFileURL());
         fd.setLocalFile(this.getWorkDirectory() + "/" + "MGI_PhenoGenoMP.rpt");
         fd.setAppendDateStamp(true);
