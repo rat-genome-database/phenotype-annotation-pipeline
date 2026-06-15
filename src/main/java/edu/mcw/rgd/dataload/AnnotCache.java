@@ -3,6 +3,8 @@ package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.process.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -11,6 +13,8 @@ import java.util.*;
  * @since 2020-03-03
  */
 public class AnnotCache {
+
+    private static final Logger log = LogManager.getLogger("core");
 
     private Map<String, Annotation> _cacheMap = new HashMap<>();
     private Set<Integer> annotKeysUpdated = new HashSet<>();
@@ -62,9 +66,7 @@ public class AnnotCache {
             String annotKey = createAnnotKey(a);
             Annotation aOld = _cacheMap.put(annotKey, a);
             if( aOld!=null ) {
-                System.out.println("unexpected: duplicate annot");
-                System.out.println("   "+aOld.dump("|"));
-                System.out.println("   "+a.dump("|"));
+                log.warn("unexpected: duplicate annot\n   "+aOld.dump("|")+"\n   "+a.dump("|"));
             }
         }
         return annotations.size();

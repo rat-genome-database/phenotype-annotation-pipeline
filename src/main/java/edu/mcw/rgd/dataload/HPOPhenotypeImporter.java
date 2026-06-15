@@ -143,9 +143,6 @@ public class HPOPhenotypeImporter extends BaseImporter {
             } else {
                 RgdId id = rgdIds.get(0);
 
-                if( xrefSource.contains("OMIM") || xrefSource.contains("http") ) {
-                    System.out.println("problem");
-                }
                 createAnnotation(id, getEvidenceCode(), hpoId, hpoTermName, xrefSource, incomingAnnotations);
             }
         }

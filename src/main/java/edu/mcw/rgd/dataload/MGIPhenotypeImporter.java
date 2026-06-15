@@ -44,6 +44,10 @@ public class MGIPhenotypeImporter extends BaseImporter {
 
         while ((line = br.readLine()) != null) {
             String[] tokens = line.split("\\t", -1);
+            if( tokens.length < 6 ) {
+                log.warn("malformed line: "+line);
+                continue;
+            }
             String accId = tokens[3];
             String[] pmIds = tokens[4].split("[,|]");
             String[] mgiIds = tokens[5].split("[,|]");
