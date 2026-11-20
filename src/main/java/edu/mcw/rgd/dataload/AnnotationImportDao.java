@@ -46,8 +46,16 @@ public class AnnotationImportDao {
         return adao.getAnnotationByEvidence(rgdId, accId, ownerId, evidence);
     }
 
+    /// all pipeline annotations for the reference, regardless of the status of the annotated object:
+    /// annotations on withdrawn/retired genes must be loaded too, so they are detected as stale and deleted
+    /// (AnnotationDAO.getAnnotationsByReference() returns only annotations on ACTIVE objects)
     public List<Annotation> getAnnotations(int refRgdId) throws Exception {
-        return adao.getAnnotationsByReference(refRgdId);
+        String sql = """
+            SELECT a.*,r.species_type_key
+            FROM full_annot a, rgd_ids r
+            WHERE a.ref_rgd_id=? AND a.annotated_object_rgd_id=r.rgd_id
+            """;
+        return adao.executeAnnotationQuery(sql, refRgdId);
     }
 
     /*
