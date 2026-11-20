@@ -1,3 +1,6 @@
+Nov 20, 2026
+  bug fix: annotations on withdrawn/retired genes are now loaded and deleted as stale (were invisible to the pipeline)
+
 Oct 20, 2026
   migrated to postgres; updated dependencies
   hpo-phenotype: updated source to v2026-09-01 release
